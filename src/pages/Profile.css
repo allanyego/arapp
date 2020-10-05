@@ -1,0 +1,31 @@
+.user-avatar {
+  display: block;
+  margin: 0 auto;
+  border-radius: 50%;
+}
+
+.contact-card .header,
+.contact-card .body {
+  color: var(--ion-color-dark);
+}
+
+.contact-card .header {
+  border-bottom: solid 0.5px var(--ion-color-light-shade);
+  padding: 0.5rem;
+}
+
+.contact-card .body {
+  padding-top: var(--ion-padding, 16px);
+}
+
+.contact-card .body .contact-row {
+  display: grid;
+  grid-template-columns: 1fr 10fr;
+  line-height: normal;
+  margin-top: 0.25rem;
+}
+
+.contact-card .body .contact-row > div {
+  display: flex;
+  align-items: center;
+}
