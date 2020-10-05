@@ -7,7 +7,7 @@ import * as Yup from "yup";
 
 import "./Thread.css";
 import { useParams, useLocation, useHistory } from "react-router";
-import { getThreadMessages } from "../http/messages";
+import { getThreadMessages, sendMessage } from "../http/messages";
 import { useAppContext } from "../lib/context-lib";
 
 const messageSchema = Yup.object({
@@ -15,37 +15,68 @@ const messageSchema = Yup.object({
 });
 
 const Thread: React.FC = () => {
-  let [messages, setMessages] = useState([]);
+  let [messages, setMessages] = useState<any>([]);
   const { threadId } = useParams();
-  const location = useLocation() as any;
+  const { state }: any = useLocation();
   const history = useHistory();
   const { currentUser } = useAppContext() as any;
 
   useEffect(() => {
-    getThreadMessages(threadId, currentUser.token).then((data: any) => {
+    getThreadMessages(threadId, currentUser.token).then(({ data }: any) => {
       setMessages(data || messages);
     }).catch(console.error);
 
     return () => {
-      setMessages = null as any;
+      setMessages = () => { };
     };
   }, []);
 
-  if (!location!.state!.fullName) {
+  if (state && !state.fullName) {
     history.replace("/app/chat");
     return null;
   }
 
-  const handleSubmit = async (values: any, { setSubmitting }: any) => { };
+  const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
+    try {
+      const recipientField = messages[0].sender._id !== currentUser._id ?
+        messages[0].sender._id :
+        messages[0].recipient._id;
+
+      const newMessage = {
+        thread: messages[0].thread,
+        sender: currentUser._id,
+        recipient: recipientField,
+        ...values,
+      };
+
+      await sendMessage(newMessage, currentUser.token);
+      setSubmitting(false);
+      resetForm({
+        values: "",
+      });
+      setMessages((msgs: any) => [...msgs, {
+        ...newMessage,
+        sender: {
+          fullName: currentUser.fullName,
+          _id: currentUser._id,
+        },
+        createdAt: Date.now(),
+        _id: String(Date.now())
+      }]);
+    } catch (error) {
+      console.error(error);
+      setSubmitting(false);
+    }
+  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/" />
+            <IonBackButton defaultHref="/app/chat" />
           </IonButtons>
-          <IonTitle>{location.state.fullName}</IonTitle>
+          <IonTitle>{(state && state.fullName) || "...user..."}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>

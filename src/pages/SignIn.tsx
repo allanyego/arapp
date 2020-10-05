@@ -62,7 +62,12 @@ const SignIn: React.FC = () => {
                   </IonItem>
                   <IonRow>
                     <IonCol>
-                      <IonButton expand="block" type="submit" disabled={!isValid || isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"}</IonButton>
+                      <IonButton
+                        color="dark"
+                        expand="block"
+                        type="submit"
+                        disabled={!isValid || isSubmitting}
+                      >{isSubmitting ? "Submitting..." : "Submit"}</IonButton>
                     </IonCol>
                   </IonRow>
                 </Form>

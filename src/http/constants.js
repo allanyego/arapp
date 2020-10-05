@@ -1,22 +1,9 @@
-export const SERVER_URL_DEV = "https://afyamedex.herokuapp.com/api/v1";
+export const SERVER_URL_DEV = "https://safe360-ke.herokuapp.com/api/v1";
 export const SERVER_URL = "";
-export const APPOINTMENT = {
-  STATUSES: {
-    UNAPPROVED: "UNAPPROVED",
-    APPROVED: "APPROVED",
-    REJECTED: "REJECTED",
-  },
-  TYPES: {
-    VIRTUAL_CONSULTATION: "VIRTUAL_CONSULTATION",
-    ONSITE_CONSULTATION: "ONSITE_CONSULTATION",
-    ONSITE_TESTS: "ONSITE_TESTS",
-  },
-};
 
 export const USER = {
   ACCOUNT_TYPES: {
-    PROFESSIONAL: "PROFESSIONAL",
-    INSTITUTION: "INSTITUTION",
-    PATIENT: "PATIENT",
+    USER: "USER",
+    COUNSELLOR: "COUNSELLOR",
   },
 };

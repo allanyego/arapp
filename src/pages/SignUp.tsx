@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonText, IonRouterLink, IonInput, IonItem, IonLabel, IonItemDivider, IonSelect, IonSelectOption, IonDatetime } from '@ionic/react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useHistory } from "react-router-dom";
@@ -16,15 +16,29 @@ const signUpSchema = Yup.object({
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords do not match.")
     .required("Confirm your password."),
+  countryCode: Yup.string().required("Select your country code."),
+  phone: Yup.string().matches(/^[0-9]{1,}$/, "Invalid phone number.")
+    .required("Enter your phone number."),
 });
+
+const COUNTRIES_URL = "https://restcountries.eu/rest/v2/all?fields=callingCodes;name";
 
 const SignUp: React.FC = () => {
   const { setCurrentUser } = useAppContext() as any;
+  const [countries, setCountries] = useState([]);
   const history = useHistory()
+
+  useEffect(() => {
+    fetch(COUNTRIES_URL).then(async res => {
+      setCountries(await res.json());
+    }).catch(console.error);
+  }, []);
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      const user = await signUp(values);
+      const { countryCode, phone, ...rest } = values;
+      rest.phone = countryCode + phone;
+      const user = await signUp(rest);
       setCurrentUser(user);
       setSubmitting(false);
       history.push("/account-type");
@@ -83,6 +97,29 @@ const SignUp: React.FC = () => {
                       </IonItem>
                     </IonCol>
                   </IonRow>
+                  <IonRow>
+                    <IonCol>
+                      <IonItem className={touched.countryCode && errors.countryCode ? "has-error" : ""}>
+                        <IonLabel position="floating">Country Code</IonLabel>
+                        <IonSelect name="countryCode" onIonChange={handleChange} onIonBlur={handleBlur}>
+                          {countries.map(
+                            (c: any, i) => (
+                              <IonSelectOption
+                                key={i}
+                                value={c.callingCodes[0]}
+                              >{`(${c.callingCodes[0]}) ${c.name}`}</IonSelectOption>
+                            )
+                          )}
+                        </IonSelect>
+                      </IonItem>
+                    </IonCol>
+                    <IonCol>
+                      <IonItem className={touched.phone && errors.phone ? "has-error" : ""}>
+                        <IonLabel position="floating">Phone number (exclusive country code)</IonLabel>
+                        <IonInput name="phone" onIonChange={handleChange} onIonBlur={handleBlur} />
+                      </IonItem>
+                    </IonCol>
+                  </IonRow>
                   <IonItem className={touched.password && errors.password ? "has-error" : ""}>
                     <IonLabel position="floating">Password</IonLabel>
                     <IonInput type="password" name="password" onIonChange={handleChange} onIonBlur={handleBlur} />
@@ -93,7 +130,12 @@ const SignUp: React.FC = () => {
                   </IonItem>
                   <IonRow>
                     <IonCol>
-                      <IonButton expand="block" type="submit" disabled={!isValid || isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"}</IonButton>
+                      <IonButton
+                        color="dark"
+                        expand="block"
+                        type="submit"
+                        disabled={!isValid || isSubmitting}
+                      >{isSubmitting ? "Submitting..." : "Submit"}</IonButton>
                     </IonCol>
                   </IonRow>
                 </Form>

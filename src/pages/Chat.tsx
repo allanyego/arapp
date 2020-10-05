@@ -45,11 +45,14 @@ function ThreadRibbon({ thread }: any) {
   const { currentUser } = useAppContext() as any;
   const otherUser = thread.participants.filter(
     (user: any) => user._id !== currentUser._id
-  );
+  )[0];
+
+  console.log(otherUser, thread);
+
   const toThread = () => history.push({
     pathname: `${url}/${thread._id}`,
     state: {
-      otherUser,
+      ...otherUser,
     }
   });
 

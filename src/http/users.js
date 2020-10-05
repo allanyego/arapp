@@ -3,7 +3,7 @@ import { SERVER_URL_DEV } from "./constants";
 
 const BASE_URL = SERVER_URL_DEV + "/users";
 
-export async function getUsers({ username, patient = false }) {
+export async function getUsers({ username = null, patient = false }) {
   let queryParams = "";
   if (username && patient) {
     queryParams += `?username=${encodeURIComponent(username)}&patient=true`;
@@ -13,7 +13,7 @@ export async function getUsers({ username, patient = false }) {
     queryParams += `?patient=true`;
   }
 
-  return await request(`${BASE_URL}/${queryParams}`);
+  return await request(`${BASE_URL}/${queryParams}`, {});
 }
 
 export async function signIn(username, password) {
@@ -43,5 +43,5 @@ export async function editUser(userId, token, data) {
 }
 
 export async function getById(userId) {
-  return await request(`${BASE_URL}/${userId}`);
+  return await request(`${BASE_URL}/${userId}`, {});
 }

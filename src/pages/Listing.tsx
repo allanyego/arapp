@@ -16,11 +16,12 @@ const Listing: React.FC = () => {
   const history = useHistory();
 
   const fetchProfessionals = async (opts?: any) => {
-    return (await getUsers(opts)).data;
+    const { data } = await getUsers(opts);
+    setProfessionals(data);
   };
 
   useEffect(() => {
-    fetchProfessionals().then(setProfessionals).catch(console.error);
+    fetchProfessionals({}).catch(console.error);
   }, []);
 
   const toProfile = () => history.push('/app/profile');
@@ -50,14 +51,14 @@ const Listing: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonAvatar slot="start" className="ion-padding" onClick={toProfile}>
-            <img src={defaultAvatar} alt="mike scott" />
+            <img src={defaultAvatar} alt="" />
           </IonAvatar>
           <IonButtons slot="primary">
             <IonButton onClick={onToggle} color={showSearchBar ? "dark" : "medium"}>
               <IonIcon slot="icon-only" icon={search} />
             </IonButton>
           </IonButtons>
-          <IonTitle>Professionals</IonTitle>
+          <IonTitle>Find help</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
@@ -75,7 +76,7 @@ const Listing: React.FC = () => {
                   />
                 </IonCol>
                 <IonCol className="ion-no-padding d-flex ion-align-items-center" size="2">
-                  <IonButton expand="block" onClick={handleSearch} disabled={isSearching}>Go</IonButton>
+                  <IonButton expand="block" onClick={handleSearch} disabled={isSearching}>Find</IonButton>
                 </IonCol>
               </IonRow>
             </IonGrid>
@@ -98,7 +99,7 @@ function ListingItem({ prof }: any) {
         <img src={defaultAvatar} alt={prof.fullName} />
       </IonAvatar>
       <IonLabel>
-        <h3>{prof.fullName}</h3>
+        <h2>{prof.fullName}</h2>
         <p>{prof.bio || "No bio."}</p>
         {prof.rating ? (
           <>

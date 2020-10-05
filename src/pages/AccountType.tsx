@@ -1,33 +1,24 @@
 import React, { useState } from 'react';
 import { IonPage, IonContent, IonText, IonCard, IonCardContent, IonIcon, IonSpinner } from '@ionic/react';
-import { businessOutline, personOutline, person } from 'ionicons/icons';
+import { personOutline, person } from 'ionicons/icons';
 import { useAppContext } from '../lib/context-lib';
 import { useHistory } from 'react-router';
 import { editUser } from '../http/users';
+import { USER } from '../http/constants';
 
 const accountTypes = [
   {
-    accountType: "professional",
+    accountType: USER.ACCOUNT_TYPES.USER,
     icon: person,
   },
   {
-    accountType: "patient",
+    accountType: USER.ACCOUNT_TYPES.COUNSELLOR,
     icon: personOutline,
-  },
-  {
-    accountType: "institution",
-    icon: businessOutline,
   },
 ];
 
 export default function AccountType() {
-  const { currentUser } = useAppContext() as any;
-  const history = useHistory();
   const [settingUp, setSettingUp] = useState(false);
-
-  if (!currentUser) {
-    history.push("/sign-in");
-  }
 
   return (
     <IonPage>
@@ -39,7 +30,7 @@ export default function AccountType() {
             <IonText>
               <h1>Select account type</h1>
             </IonText>
-            {accountTypes.map(type => <AccountTypeCard {...{ settingUp, setSettingUp, userId: currentUser._id }} {...type} />)}
+            {accountTypes.map(type => <AccountTypeCard {...{ settingUp, setSettingUp }} {...type} />)}
           </div>
         </div>
       </IonContent>
@@ -50,12 +41,11 @@ export default function AccountType() {
 type AccountTypeProps = {
   accountType: string,
   icon: any,
-  userId: any,
   settingUp: boolean,
   setSettingUp: any,
 };
 
-function AccountTypeCard({ accountType, icon, userId, settingUp, setSettingUp }: AccountTypeProps) {
+function AccountTypeCard({ accountType, icon, settingUp, setSettingUp }: AccountTypeProps) {
   const [loading, setLoading] = useState(false);
   const { currentUser, setCurrentUser } = useAppContext() as any;
   const history = useHistory();
@@ -63,7 +53,7 @@ function AccountTypeCard({ accountType, icon, userId, settingUp, setSettingUp }:
   const setAccountType = settingUp ? null : async () => {
     setSettingUp(true);
     try {
-      await editUser(userId, currentUser.token, {
+      await editUser(currentUser._id, currentUser.token, {
         accountType,
       });
 

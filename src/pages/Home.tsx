@@ -10,13 +10,14 @@ const Home: React.FC = () => {
         <IonRow className="h100 ion-text-center">
           <IonCol className="ion-align-self-center">
             <IonText>
-              <h1>AfyaMedex</h1>
+              <h1>Safe360</h1>
+              <p>Welcome</p>
             </IonText>
-            <IonButton expand="block" href="/sign-in">Sign in</IonButton>
+            <IonButton color="dark" expand="block" href="/sign-in" >Sign in</IonButton>
             <IonText>
               OR
             </IonText>
-            <IonButton expand="block" href="/sign-up">Sign up</IonButton>
+            <IonButton color="dark" expand="block" href="/sign-up">Sign up</IonButton>
           </IonCol>
         </IonRow>
       </IonContent>
