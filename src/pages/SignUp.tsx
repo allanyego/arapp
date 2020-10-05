@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { useHistory } from "react-router-dom";
 import { signUp } from '../http/users';
 import { useAppContext } from '../lib/context-lib';
+import { STORAGE_KEY } from '../http/constants';
+import { setObject } from '../lib/storage';
 
 const signUpSchema = Yup.object({
   fullName: Yup.string().required("Enter your full name."),
@@ -38,10 +40,13 @@ const SignUp: React.FC = () => {
     try {
       const { countryCode, phone, ...rest } = values;
       rest.phone = countryCode + phone;
-      const user = await signUp(rest);
-      setCurrentUser(user);
+      const { data } = await signUp(rest);
+      setCurrentUser(data);
       setSubmitting(false);
       history.push("/account-type");
+      await setObject(STORAGE_KEY, {
+        currentUser: data,
+      });
     } catch (error) {
       setSubmitting(false);
       console.error(error);

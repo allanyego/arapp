@@ -7,3 +7,5 @@ export const USER = {
     COUNSELLOR: "COUNSELLOR",
   },
 };
+
+export const STORAGE_KEY = "safe360-appKey";

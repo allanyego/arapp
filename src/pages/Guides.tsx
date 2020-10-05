@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonCardTitle, IonCardContent, IonCard, IonCardHeader, IonAvatar, IonFab, IonFabButton, IonIcon } from "@ionic/react";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonCardTitle, IonCardContent, IonCard, IonCardHeader, IonAvatar, IonFab, IonFabButton, IonIcon, IonButton } from "@ionic/react";
 import { useRouteMatch, useHistory } from "react-router";
 
 import defaultAvatar from "../assets/img/default_avatar.jpg";
-import { add } from "ionicons/icons";
+import { add, ellipsisVertical } from "ionicons/icons";
 import { useAppContext } from "../lib/context-lib";
 import { getGuides } from "../http/guides";
 import { USER } from "../http/constants";
+import UserHeader from "../components/UserHeader";
 
 export default function Guides() {
   const history = useHistory();
@@ -22,19 +23,11 @@ export default function Guides() {
     getLatestGuides().catch(console.error);
   }, []);
 
-  const toProfile = () => history.push('/app/profile');
   const toNewGuideForm = () => history.push("/app/guides/new");
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonAvatar slot="start" className="ion-padding" onClick={toProfile}>
-            <img src={defaultAvatar} alt={currentUser.fullName} />
-          </IonAvatar>
-          <IonTitle>Guides and tips</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <UserHeader title="Guides and tips" />
       <IonContent fullscreen>
 
         {currentUser.accountType === USER.ACCOUNT_TYPES.COUNSELLOR &&

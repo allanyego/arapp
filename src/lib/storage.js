@@ -10,7 +10,8 @@ export async function setObject(key, value) {
 }
 
 export async function getObject(key) {
-  return JSON.parse(await Storage.get({ key }));
+  const { value } = await Storage.get({ key });
+  return JSON.parse(value);
 }
 
 export async function clear() {

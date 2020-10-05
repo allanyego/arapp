@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { signIn } from '../http/users';
 import { useAppContext } from '../lib/context-lib';
 import { useHistory } from 'react-router';
+import { setObject } from '../lib/storage';
+import { STORAGE_KEY } from '../http/constants';
 
 const loginSchema = Yup.object({
   username: Yup.string().required("Enter your username."),
@@ -20,6 +22,10 @@ const SignIn: React.FC = () => {
       const { data } = await signIn(values.username.trim(), values.password);
       setCurrentUser(data);
       setSubmitting(false);
+      await setObject(STORAGE_KEY, {
+        currentUser: data,
+      });
+
       if (data.accountType) {
         history.push("/app");
       } else {

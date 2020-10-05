@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouteMatch, Route, Redirect } from "react-router";
 import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonBadge, IonRouterOutlet } from "@ionic/react";
-import { informationCircle, personCircle, chatbubbles } from "ionicons/icons";
+import { informationCircle, megaphone, chatbox } from "ionicons/icons";
 import Guides from "./Guides";
 import Chat from "./Chat";
 import Listing from "./Listing";
@@ -28,9 +28,10 @@ const Main: React.FC = () => {
         } exact={true} />
         <Route path={`${path}/chat/:threadId`} component={Thread} exact />
         <Route path={`${path}/guides`} component={Guides} exact />
-        <Route path={`${path}/guides/:conditionId`} component={Guide} exact />
+        <Route path={`${path}/guides/:guideId`} component={Guide} exact />
         <Route path={`${path}/guides/new`} component={NewGuide} exact />
         <Route path={`${path}/profile/:userId?`} component={Profile} />
+        <Route path={`${path}/sos`} component={Guides} exact />
       </IonRouterOutlet>
       <IonTabBar slot="bottom">
         <IonTabButton tab="info" href={`${url}/guides`}>
@@ -39,15 +40,13 @@ const Main: React.FC = () => {
           {/* <IonBadge>6</IonBadge> */}
         </IonTabButton>
 
-        {currentUser.accountType === USER.ACCOUNT_TYPES.USER && (
-          <IonTabButton tab="professionals" href={`${url}/professionals`}>
-            <IonIcon icon={personCircle} />
-            <IonLabel>Professionals</IonLabel>
-          </IonTabButton>
-        )}
+        <IonTabButton tab="sos" href={`${url}/sos`}>
+          <IonIcon icon={megaphone} />
+          <IonLabel>Send SOS</IonLabel>
+        </IonTabButton>
 
         <IonTabButton tab="chat" href={`${url}/chat`}>
-          <IonIcon icon={chatbubbles} />
+          <IonIcon icon={chatbox} />
           <IonLabel>Chat</IonLabel>
         </IonTabButton>
       </IonTabBar>

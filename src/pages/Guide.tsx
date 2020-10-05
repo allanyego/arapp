@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IonContent, IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonText, IonList, IonItem, IonLabel, IonSpinner } from "@ionic/react";
+import { IonContent, IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonText, IonList, IonItem, IonLabel, IonSpinner, IonChip } from "@ionic/react";
 import { useParams } from "react-router";
 import moment from "moment";
 
@@ -39,6 +39,9 @@ export default function Guide() {
                 <h2>{guide!.title}</h2>
                 <small>{moment(guide!.createdAt).format("LT")}</small>
                 <div>{guide!.body}</div>
+                {guide!.tags.map((tag: any, index: number) =>
+                  <IonChip key={index} color="tertiary">{tag}</IonChip>
+                )}
               </IonText>
             )}
         </div>
