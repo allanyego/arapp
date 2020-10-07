@@ -29,6 +29,7 @@ const ContactPickModal: React.FC<any> = ({ show = false }) => {
         currentUser: newUserDetails,
       });
       onSuccess("Emergency contact saved.");
+      setShowModal(false);
     } catch (error) {
       onError(error.message);
     }

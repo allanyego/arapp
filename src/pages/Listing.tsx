@@ -8,6 +8,7 @@ import Rating from '../components/Rating';
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { getUsers } from "../http/users";
 import useToastManager from '../lib/toast-hook';
+import { useAppContext } from '../lib/context-lib';
 
 const Listing: React.FC = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -15,6 +16,7 @@ const Listing: React.FC = () => {
   const [isSearching, setSearching] = useState(false);
   const [professionals, setProfessionals] = useState<any>([]);
   const history = useHistory();
+  const { currentUser } = useAppContext() as any;
   const { onError } = useToastManager();
 
   const fetchProfessionals = async (opts?: any) => {
@@ -89,7 +91,9 @@ const Listing: React.FC = () => {
           </div>
         )}
         <IonList lines="full">
-          {professionals.map((prof: any) => <ListingItem key={prof._id} prof={prof} />)}
+          {professionals.map((prof: any) => prof._id !== currentUser._id ? (
+            <ListingItem key={prof._id} prof={prof} />
+          ) : null)}
         </IonList>
       </IonContent>
     </IonPage>

@@ -38,7 +38,7 @@ export default function Guides() {
 
         {currentUser.accountType === USER.ACCOUNT_TYPES.COUNSELLOR &&
           <IonFab vertical="center" horizontal="end" slot="fixed">
-            <IonFabButton onClick={toNewGuideForm}>
+            <IonFabButton onClick={toNewGuideForm} color="dark">
               <IonIcon icon={add} />
             </IonFabButton>
           </IonFab>

@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonText, IonModal, IonButtons } from '@ionic/react';
+import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText } from '@ionic/react';
 import React, { useState } from 'react';
 import UserHeader from '../components/UserHeader';
 import { useAppContext } from '../lib/context-lib';
@@ -42,7 +42,7 @@ const Sos: React.FC = () => {
             <IonText>
               <p>Tap here to send out SOS message</p>
             </IonText>
-            <IonButton color="danger" size="large" expand="block" href="/sign-in"
+            <IonButton color="danger" size="large" expand="block"
               onClick={onSendSos}
               disabled={isSubmitting}
             >
