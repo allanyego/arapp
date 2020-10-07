@@ -1,5 +1,7 @@
 {
-  "name": "afyamedex",
-  "integrations": {},
+  "name": "safe360",
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "react"
 }

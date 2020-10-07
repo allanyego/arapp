@@ -7,6 +7,7 @@ import { useAppContext } from '../lib/context-lib';
 import { useHistory } from 'react-router';
 import { setObject } from '../lib/storage';
 import { STORAGE_KEY } from '../http/constants';
+import useToastManager from '../lib/toast-hook';
 
 const loginSchema = Yup.object({
   username: Yup.string().required("Enter your username."),
@@ -16,6 +17,7 @@ const loginSchema = Yup.object({
 const SignIn: React.FC = () => {
   const { setCurrentUser } = useAppContext() as any;
   const history = useHistory();
+  const { onError } = useToastManager();
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
@@ -33,7 +35,7 @@ const SignIn: React.FC = () => {
       }
     } catch (error) {
       setSubmitting(false);
-      console.error(error);
+      onError(error.message);
     }
   };
 

@@ -6,6 +6,7 @@ import { useHistory } from "react-router";
 
 import { useAppContext } from "../lib/context-lib";
 import { addGuide } from "../http/guides";
+import useToastManager from "../lib/toast-hook";
 
 const newGuideSchema = Yup.object({
   title: Yup.string().required("Enter a title for the guide."),
@@ -16,16 +17,18 @@ const newGuideSchema = Yup.object({
 const NewGuide: React.FC = () => {
   const { currentUser } = useAppContext() as any;
   const history = useHistory();
+  const { onError, onSuccess } = useToastManager();
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
       values.tags = values.tags.trim().split(" ");
       await addGuide(currentUser.token, values);
       setSubmitting(false);
+      onSuccess("Guide posted successfully");
       history.push("/app/guides");
     } catch (error) {
-      console.error(error);
       setSubmitting(false);
+      onError(error.message);
     }
   };
 
@@ -70,7 +73,7 @@ const NewGuide: React.FC = () => {
                   <IonItem className={touched.tags && errors.tags ? "has-error" : ""}>
                     <IonLabel position="floating">Enter tags separated by spaces</IonLabel>
                     <IonTextarea name="tags" rows={3}
-                      placeholder={'one\ntwo\nthree\nfour'} onIonChange={handleChange} onIonBlur={handleBlur} />
+                      onIonChange={handleChange} onIonBlur={handleBlur} />
                   </IonItem>
                   <IonRow>
                     <IonCol>

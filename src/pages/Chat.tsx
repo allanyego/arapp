@@ -1,35 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonCard, IonCardContent, IonItem, IonAvatar, IonList, IonLabel, IonText } from "@ionic/react";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonItem, IonAvatar, IonList, IonLabel, IonText } from "@ionic/react";
 
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { useRouteMatch, useHistory } from "react-router";
 import { useAppContext } from "../lib/context-lib";
 import { getUserThreads } from "../http/messages";
+import useToastManager from "../lib/toast-hook";
+import UserHeader from "../components/UserHeader";
 
 export default function Chat() {
   const history = useHistory();
   const [threads, setThreads] = useState<any>([]);
   const { currentUser } = useAppContext() as any;
+  const { onError } = useToastManager();
 
   useEffect(() => {
     getUserThreads(currentUser._id, currentUser.token).then(({ data }) => {
       setThreads(data || threads);
-    }).catch(console.error);
+    }).catch(error => onError(error.message));
   }, []);
 
   const toProfile = () => history.push('/app/profile');
 
   return (
     <IonPage>
-      {/* TODO: Refactor this header */}
-      <IonHeader>
-        <IonToolbar>
-          <IonAvatar slot="start" className="ion-padding" onClick={toProfile}>
-            <img src={defaultAvatar} alt="mike scott" />
-          </IonAvatar>
-          <IonTitle>Chat</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <UserHeader title="Chat" />
       <IonContent fullscreen>
         <IonList>
           {threads.map((thread: any) => <ThreadRibbon key={thread._id} thread={thread} />)}

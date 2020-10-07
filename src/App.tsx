@@ -31,9 +31,11 @@ import { AppContext } from './lib/context-lib';
 import "./App.css";
 import { getObject } from './lib/storage';
 import { STORAGE_KEY } from './http/constants';
+import ToastManager from './components/ToastManager';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [notifications, setNotifications] = useState([]);
   const [authenticating, setAuthenticating] = useState(true);
 
   useEffect(() => {
@@ -51,7 +53,10 @@ const App: React.FC = () => {
       <AppContext.Provider value={{
         currentUser,
         setCurrentUser,
+        notifications,
+        setNotifications,
       }}>
+        <ToastManager />
         <IonReactRouter>
           {authenticating ? (
             <div className="h100 d-flex ion-justify-content-center ion-align-items-center">
@@ -61,11 +66,15 @@ const App: React.FC = () => {
               <IonRouterOutlet>
                 <Route path="/home" render={() => !currentUser ?
                   <Home /> : redirect("/app")} exact={true} />
+
                 <Route path="/sign-in" render={() => !currentUser ?
                   <SignIn /> : redirect("/app")} exact={true} />
+
                 <Route path="/sign-up" render={() => !currentUser ?
                   <SignUp /> : redirect("/app")} exact={true} />
+
                 <Route path="/app" render={() => currentUser ? <Main /> : redirect("/sign-in")} />
+
                 <Route
                   path="/account-type"
                   exact
@@ -73,6 +82,7 @@ const App: React.FC = () => {
                     currentUser!.accountType ? redirect("/app") : <AccountType />
                     : redirect("/sign-in")}
                 />
+
                 <Route exact path="/" render={() => <Redirect to="/home" />} />
               </IonRouterOutlet>
             )}

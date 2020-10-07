@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonText, IonRouterLink, IonInput, IonItem, IonLabel, IonItemDivider, IonSelect, IonSelectOption, IonDatetime } from '@ionic/react';
+import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, IonRouterLink, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonDatetime } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -7,6 +7,7 @@ import { signUp } from '../http/users';
 import { useAppContext } from '../lib/context-lib';
 import { STORAGE_KEY } from '../http/constants';
 import { setObject } from '../lib/storage';
+import useToastManager from '../lib/toast-hook';
 
 const signUpSchema = Yup.object({
   fullName: Yup.string().required("Enter your full name."),
@@ -29,11 +30,12 @@ const SignUp: React.FC = () => {
   const { setCurrentUser } = useAppContext() as any;
   const [countries, setCountries] = useState([]);
   const history = useHistory()
+  const { onError, onSuccess } = useToastManager();
 
   useEffect(() => {
     fetch(COUNTRIES_URL).then(async res => {
       setCountries(await res.json());
-    }).catch(console.error);
+    }).catch(error => onError(error.message));
   }, []);
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
@@ -43,13 +45,14 @@ const SignUp: React.FC = () => {
       const { data } = await signUp(rest);
       setCurrentUser(data);
       setSubmitting(false);
+      onSuccess("Welcome @" + values.username);
       history.push("/account-type");
       await setObject(STORAGE_KEY, {
         currentUser: data,
       });
     } catch (error) {
       setSubmitting(false);
-      console.error(error);
+      onError(error.message)
     }
   };
   return (

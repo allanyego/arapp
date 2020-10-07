@@ -1,7 +1,7 @@
 import { SERVER_URL_DEV } from "./constants";
 import request, { constructAuthHeader } from "./request";
 
-const BASE_URL = SERVER_URL_DEV + "/appointments";
+const BASE_URL = SERVER_URL_DEV + "/incidents";
 
 export async function get(userId, token) {
   return await request(`${BASE_URL}/${userId}`, {
@@ -9,17 +9,9 @@ export async function get(userId, token) {
   });
 }
 
-export async function post(userId, token, data) {
-  return await request(`${BASE_URL}/${userId}`, {
+export async function postIncident(data, token) {
+  return await request(BASE_URL, {
     method: "POST",
-    headers: constructAuthHeader(token),
-    data,
-  });
-}
-
-export async function edit(appointmentId, token, data) {
-  return await request(`${BASE_URL}/${appointmentId}`, {
-    method: "PUT",
     headers: constructAuthHeader(token),
     data,
   });

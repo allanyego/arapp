@@ -5,6 +5,7 @@ import { useAppContext } from '../lib/context-lib';
 import { useHistory } from 'react-router';
 import { editUser } from '../http/users';
 import { USER } from '../http/constants';
+import useToastManager from '../lib/toast-hook';
 
 const accountTypes = [
   {
@@ -49,6 +50,7 @@ function AccountTypeCard({ accountType, icon, settingUp, setSettingUp }: Account
   const [loading, setLoading] = useState(false);
   const { currentUser, setCurrentUser } = useAppContext() as any;
   const history = useHistory();
+  const { onError, onSuccess } = useToastManager();
 
   const setAccountType = settingUp ? null : async () => {
     setSettingUp(true);
@@ -63,10 +65,12 @@ function AccountTypeCard({ accountType, icon, settingUp, setSettingUp }: Account
       });
 
       setLoading(false);
+      onSuccess("Account type set.");
       history.push("/app/profile")
     } catch (error) {
       setLoading(false);
       setSettingUp(false);
+      onError(error.message);
     }
   };
   return (

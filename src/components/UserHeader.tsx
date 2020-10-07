@@ -5,12 +5,14 @@ import { useHistory } from "react-router";
 import { useAppContext } from "../lib/context-lib";
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { clear } from "../lib/storage";
+import useToastManager from "../lib/toast-hook";
 
 export default function UserHeader({ title }: { title: string }) {
   const history = useHistory();
   const [showPopover, setShowPopover] = useState(false);
   const [popoverEvent, setPopoverEvent] = useState(undefined);
   const { currentUser, setCurrentUser } = useAppContext() as any;
+  const { onError } = useToastManager();
 
   const onShowPopover = (e: any) => {
     e.persist();
@@ -25,7 +27,7 @@ export default function UserHeader({ title }: { title: string }) {
       setCurrentUser(null);
       history.push("/sign-in");
     } catch (error) {
-      console.error(error);
+      onError(error.message);
     }
   };
 
@@ -53,9 +55,9 @@ export default function UserHeader({ title }: { title: string }) {
             <IonIcon slot="start" icon={list} />
             <IonLabel>Find professionals</IonLabel>
           </IonItem>
-          <IonItem color="danger" onClick={handleLogout}>
-            <IonIcon slot="start" icon={exit} />
-            <IonLabel>Logout</IonLabel>
+          <IonItem onClick={handleLogout}>
+            <IonIcon color="danger" slot="start" icon={exit} />
+            <IonLabel color="danger">Logout</IonLabel>
           </IonItem>
         </IonList>
       </IonPopover>

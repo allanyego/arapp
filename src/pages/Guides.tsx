@@ -1,26 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonCardTitle, IonCardContent, IonCard, IonCardHeader, IonAvatar, IonFab, IonFabButton, IonIcon, IonButton } from "@ionic/react";
+import { IonPage, IonContent, IonCardTitle, IonCardContent, IonCard, IonCardHeader, IonFab, IonFabButton, IonIcon, IonCardSubtitle } from "@ionic/react";
 import { useRouteMatch, useHistory } from "react-router";
+import moment from "moment";
 
-import defaultAvatar from "../assets/img/default_avatar.jpg";
-import { add, ellipsisVertical } from "ionicons/icons";
+import { add } from "ionicons/icons";
 import { useAppContext } from "../lib/context-lib";
 import { getGuides } from "../http/guides";
 import { USER } from "../http/constants";
 import UserHeader from "../components/UserHeader";
+import useToastManager from "../lib/toast-hook";
 
 export default function Guides() {
   const history = useHistory();
   const [guides, setGuides] = useState([])
   const { currentUser } = useAppContext() as any;
+  const { onError } = useToastManager();
 
   const getLatestGuides = async () => {
-    const { data } = await getGuides();
-    setGuides(data);
+    try {
+      const { data } = await getGuides();
+      setGuides(data);
+    } catch (error) {
+      onError(error.message);
+    }
   };
 
   useEffect(() => {
-    getLatestGuides().catch(console.error);
+    getLatestGuides().catch(error => onError(error.message));
   }, []);
 
   const toNewGuideForm = () => history.push("/app/guides/new");
@@ -51,6 +57,9 @@ function GuideCard({ guide }: any) {
     <IonCard routerLink={`${url}/${guide._id}`}>
       <IonCardHeader>
         <IonCardTitle>{guide.title}</IonCardTitle>
+        <IonCardSubtitle>
+          <small>{moment(guide.createdAt).format("LT")}</small>
+        </IonCardSubtitle>
       </IonCardHeader>
       <IonCardContent>
         {guide.body.slice(0, 150) + "..."}

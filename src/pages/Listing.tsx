@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonText, IonIcon, IonButtons, IonBackButton, IonSearchbar, IonGrid, IonItem, IonLabel, IonRange, IonCheckbox, IonInput, IonToggle, IonSelectOption, IonSelect, IonDatetime, IonThumbnail, IonAvatar, IonList, IonChip } from '@ionic/react';
-import { caretBackCircle, search, personCircle, ellipsisHorizontal, ellipsisVertical, checkmarkCircle, shuffle, star, informationCircle, navigate, home, closeCircle } from 'ionicons/icons';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonIcon, IonButtons, IonSearchbar, IonGrid, IonItem, IonLabel, IonAvatar, IonList, IonChip } from '@ionic/react';
+import { search } from 'ionicons/icons';
 import { useHistory } from 'react-router';
 
 import './Listing.css';
 import Rating from '../components/Rating';
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { getUsers } from "../http/users";
+import useToastManager from '../lib/toast-hook';
 
 const Listing: React.FC = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -14,14 +15,19 @@ const Listing: React.FC = () => {
   const [isSearching, setSearching] = useState(false);
   const [professionals, setProfessionals] = useState<any>([]);
   const history = useHistory();
+  const { onError } = useToastManager();
 
   const fetchProfessionals = async (opts?: any) => {
-    const { data } = await getUsers(opts);
-    setProfessionals(data);
+    try {
+      const { data } = await getUsers(opts);
+      setProfessionals(data);
+    } catch (error) {
+      onError(error.message);
+    }
   };
 
   useEffect(() => {
-    fetchProfessionals({}).catch(console.error);
+    fetchProfessionals({}).catch(error => onError(error.message));
   }, []);
 
   const toProfile = () => history.push('/app/profile');

@@ -9,6 +9,7 @@ import "./Thread.css";
 import { useParams, useLocation, useHistory } from "react-router";
 import { getThreadMessages, sendMessage } from "../http/messages";
 import { useAppContext } from "../lib/context-lib";
+import useToastManager from "../lib/toast-hook";
 
 const messageSchema = Yup.object({
   body: Yup.string().required("Message can't be blank"),
@@ -20,11 +21,12 @@ const Thread: React.FC = () => {
   const { state }: any = useLocation();
   const history = useHistory();
   const { currentUser } = useAppContext() as any;
+  const { onError } = useToastManager();
 
   useEffect(() => {
     getThreadMessages(threadId, currentUser.token).then(({ data }: any) => {
       setMessages(data || messages);
-    }).catch(console.error);
+    }).catch(error => onError(error.message));
 
     return () => {
       setMessages = () => { };
@@ -51,9 +53,7 @@ const Thread: React.FC = () => {
 
       await sendMessage(newMessage, currentUser.token);
       setSubmitting(false);
-      resetForm({
-        values: "",
-      });
+      resetForm({});
       setMessages((msgs: any) => [...msgs, {
         ...newMessage,
         sender: {
@@ -64,8 +64,8 @@ const Thread: React.FC = () => {
         _id: String(Date.now())
       }]);
     } catch (error) {
-      console.error(error);
       setSubmitting(false);
+      onError(error.message);
     }
   };
 
@@ -93,6 +93,7 @@ const Thread: React.FC = () => {
           {({
             handleChange,
             handleBlur,
+            values,
             errors,
             touched,
             isValid,
@@ -113,6 +114,7 @@ const Thread: React.FC = () => {
                     </IonCol>
                     <IonCol size="7" className="ion-no-padding d-flex ion-align-items-center message-col">
                       <IonTextarea
+                        value={values.body || ""}
                         rows={1}
                         className={"ion-no-margin" + touched.body && errors.body ? " has-error" : ""}
                         name="body"

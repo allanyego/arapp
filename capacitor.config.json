@@ -1,0 +1,13 @@
+{
+  "appId": "io.safe360.0",
+  "appName": "safe360",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {}
+}

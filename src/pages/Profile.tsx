@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { IonAvatar, IonText, IonPage, IonContent, IonChip, IonRow, IonCol, IonGrid, IonButton, IonList, IonItem, IonListHeader, IonLabel, IonIcon, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonSpinner, IonModal, IonTextarea } from "@ionic/react";
-import { heartOutline, star, starHalf, caretDown, caretUp, call, mail } from "ionicons/icons";
+import { IonText, IonPage, IonContent, IonChip, IonRow, IonCol, IonGrid, IonButton, IonList, IonItem, IonLabel, IonIcon, IonCard, IonCardHeader, IonCardContent, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonSpinner, IonModal, IonTextarea } from "@ionic/react";
+import { caretDown, caretUp, call, mail, chatboxEllipses, heartCircleOutline } from "ionicons/icons";
 import moment from "moment";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -8,11 +8,14 @@ import * as Yup from "yup";
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import "./Profile.css";
 import Rating from "../components/Rating";
-import { useParams, useHistory } from "react-router";
+import { useParams } from "react-router";
 import { getById } from "../http/users";
 import { useAppContext } from "../lib/context-lib";
-import { USER } from "../http/constants";
+import { USER, STORAGE_KEY } from "../http/constants";
 import { sendMessage } from "../http/messages";
+import useToastManager from "../lib/toast-hook";
+import useContacts from "../lib/contacts-lib";
+import { setObject } from "../lib/storage";
 
 interface ProfileData {
   _id?: string,
@@ -40,6 +43,7 @@ const Profile: React.FC = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
   const { currentUser } = useAppContext() as any;
+  const { onError } = useToastManager();
 
   useEffect(() => {
     if (userId) {
@@ -49,7 +53,7 @@ const Profile: React.FC = () => {
         } else {
           setUser(currentUser);
         }
-      }).catch(console.error);
+      }).catch(error => onError(error.message));
     } else {
       setUser(currentUser);
     }
@@ -60,7 +64,7 @@ const Profile: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/app/guides" />
+            <IonBackButton defaultHref="/app" />
           </IonButtons>
           <IonTitle>Profile</IonTitle>
         </IonToolbar>
@@ -89,12 +93,12 @@ function ContactCard({ phone, email }: { phone: string, email: string }) {
   return (
     <IonCard className="ion-no-margin ion-margin-vertical contact-card">
       <IonCardHeader className="header">
-        <IonRow>
+        <IonRow onClick={onToggle}>
           <IonCol className="ion-no-padding">
             <h6 className="ion-no-margin">Contact</h6>
           </IonCol>
           <IonCol className="ion-no-padding ion-text-right">
-            <IonIcon icon={isOpen ? caretUp : caretDown} onClick={onToggle} />
+            <IonIcon icon={isOpen ? caretUp : caretDown} />
           </IonCol>
         </IonRow>
       </IonCardHeader>
@@ -125,6 +129,7 @@ const messageSchema = Yup.object({
 function UserDetails({ user }: { user: ProfileData }) {
   const [showModal, setShowModal] = useState(false);
   const { currentUser } = useAppContext() as any;
+  const { onError, onSuccess } = useToastManager();
 
   const toggleModal = () => setShowModal(!showModal);
 
@@ -138,10 +143,11 @@ function UserDetails({ user }: { user: ProfileData }) {
 
       await sendMessage(newMessage, currentUser.token);
       setSubmitting(false);
+      onSuccess("Message sent");
       toggleModal();
     } catch (error) {
-      console.error(error);
       setSubmitting(false);
+      onError(error.message);
     }
   };
 
@@ -228,11 +234,14 @@ function UserDetails({ user }: { user: ProfileData }) {
           {user._id !== currentUser._id && (
             <IonRow className="ion-justify-content-center">
               <IonCol size="10">
-                <IonButton expand="block" onClick={toggleModal}>Chat</IonButton>
+                <IonButton color="dark" expand="block" onClick={toggleModal}>
+                  Chat
+                  <IonIcon slot="end" icon={chatboxEllipses} />
+                </IonButton>
               </IonCol>
               <IonCol size="2">
-                <IonButton expand="block">
-                  <IonIcon slot="icon-only" icon={heartOutline} />
+                <IonButton color="light" expand="block">
+                  <IonIcon slot="icon-only" icon={heartCircleOutline} />
                 </IonButton>
               </IonCol>
             </IonRow>
@@ -261,6 +270,45 @@ function UserDetails({ user }: { user: ProfileData }) {
           </IonItem>)}
         </IonList>
       </div>
+      {(currentUser._id === user._id) && !currentUser.emergencyContact && (
+        <ContactButton />
+      )}
     </IonCol>
+  );
+}
+
+function ContactButton() {
+  const { currentUser, setCurrentUser } = useAppContext() as any;
+  const pickContact = useContacts();
+  const { onError, onSuccess } = useToastManager();
+
+  const onContactPick = async () => {
+    try {
+      const contact = await pickContact();
+      const newUserDetails = {
+        ...currentUser,
+        emergencyContact: {
+          displayName: contact.displayName || contact.name,
+          phone: contact.phoneNumbers[0],
+        }
+      };
+
+      setCurrentUser(newUserDetails);
+      await setObject(STORAGE_KEY, {
+        currentUser: newUserDetails,
+      });
+      onSuccess("Emergency contact saved.");
+    } catch (error) {
+      onError(error.message);
+    }
+  };
+
+  return (
+    <>
+      <IonText>
+        Please select your emergency contact.
+      </IonText>
+      <IonButton color="dark" expand="block" onClick={pickContact}>Select</IonButton>
+    </>
   );
 }
