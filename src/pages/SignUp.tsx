@@ -45,11 +45,11 @@ const SignUp: React.FC = () => {
       const { data } = await signUp(rest);
       setCurrentUser(data);
       setSubmitting(false);
-      onSuccess("Welcome @" + values.username);
-      history.push("/account-type");
       await setObject(STORAGE_KEY, {
         currentUser: data,
       });
+      onSuccess("Welcome @" + values.username);
+      history.push("/account-type");
     } catch (error) {
       setSubmitting(false);
       onError(error.message)

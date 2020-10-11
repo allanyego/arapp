@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText } from '@ionic/react';
+import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, IonRouterLink } from '@ionic/react';
 import React, { useState } from 'react';
 import UserHeader from '../components/UserHeader';
 import { useAppContext } from '../lib/context-lib';
@@ -39,15 +39,26 @@ const Sos: React.FC = () => {
       <IonContent fullscreen>
         <IonRow className="h100 ion-text-center">
           <IonCol className="ion-align-self-center">
-            <IonText>
-              <p>Tap here to send out SOS message</p>
-            </IonText>
-            <IonButton color="danger" size="large" expand="block"
-              onClick={onSendSos}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Sending" : "Send SOS"}
-            </IonButton>
+            {!currentUser.emergencyContact ? (
+              <IonText>
+                <p>To send emergency alerts, you need to pick an emergency contact.{' '}
+                  Head on to your <IonRouterLink routerLink="/app/profile">
+                    profile
+                  </IonRouterLink> and select one.</p>
+              </IonText>
+            ) : (
+                <>
+                  <IonText>
+                    <p>Tap here to send out SOS message</p>
+                  </IonText>
+                  <IonButton color="danger" size="large" expand="block"
+                    onClick={onSendSos}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Sending" : "Send SOS"}
+                  </IonButton>
+                </>
+              )}
           </IonCol>
         </IonRow>
       </IonContent>

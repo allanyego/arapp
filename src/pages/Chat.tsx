@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonItem, IonAvatar, IonList, IonLabel, IonText } from "@ionic/react";
+import { IonPage, IonContent, IonItem, IonAvatar, IonList, IonLabel, IonText } from "@ionic/react";
 
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { useRouteMatch, useHistory } from "react-router";
@@ -9,7 +9,6 @@ import useToastManager from "../lib/toast-hook";
 import UserHeader from "../components/UserHeader";
 
 export default function Chat() {
-  const history = useHistory();
   const [threads, setThreads] = useState<any>([]);
   const { currentUser } = useAppContext() as any;
   const { onError } = useToastManager();
@@ -19,8 +18,6 @@ export default function Chat() {
       setThreads(data || threads);
     }).catch(error => onError(error.message));
   }, []);
-
-  const toProfile = () => history.push('/app/profile');
 
   return (
     <IonPage>
