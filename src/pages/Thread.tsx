@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { IonPage, IonContent, IonFooter, IonButtons, IonButton, IonIcon, IonHeader, IonBackButton, IonToolbar, IonTitle, IonGrid, IonRow, IonCard, IonCol, IonText, IonTextarea } from "@ionic/react";
-import { attachOutline, callOutline, sendOutline, caretForwardCircle, call, documentAttach } from "ionicons/icons";
+import React, { useState, useEffect } from "react";
+import { IonPage, IonContent, IonFooter, IonButtons, IonButton, IonIcon, IonHeader, IonBackButton, IonToolbar, IonTitle, IonGrid, IonRow, IonCard, IonCol, IonText, IonTextarea, useIonViewDidEnter, useIonViewWillLeave } from "@ionic/react";
+import { caretForwardCircle, call, documentAttach } from "ionicons/icons";
 import moment from "moment";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -10,27 +10,35 @@ import { useParams, useLocation, useHistory } from "react-router";
 import { getThreadMessages, sendMessage } from "../http/messages";
 import { useAppContext } from "../lib/context-lib";
 import useToastManager from "../lib/toast-hook";
+import LoaderFallback from "../components/LoaderFallback";
 
 const messageSchema = Yup.object({
   body: Yup.string().required("Message can't be blank"),
 });
 
 const Thread: React.FC = () => {
-  let [messages, setMessages] = useState<any>([]);
+  let [messages, setMessages] = useState<any[] | null>(null);
   const { threadId } = useParams();
   const { state }: any = useLocation();
   const history = useHistory();
   const { currentUser } = useAppContext() as any;
   const { onError } = useToastManager();
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     getThreadMessages(threadId, currentUser.token).then(({ data }: any) => {
-      setMessages(data || messages);
-    }).catch(error => onError(error.message));
+      setMessages(data);
+    }).catch(error => {
+      onError(error.message);
+      history.replace("/app/chat");
+    });
 
     return () => {
       setMessages = () => { };
     };
+  });
+
+  useEffect(() => () => {
+    setMessages = () => null;
   }, []);
 
   if (state && !state.fullName) {
@@ -40,12 +48,13 @@ const Thread: React.FC = () => {
 
   const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
     try {
-      const recipientField = messages[0].sender._id !== currentUser._id ?
-        messages[0].sender._id :
-        messages[0].recipient._id;
+      const aMessage = (messages as any[])[0];
+      const recipientField = aMessage.sender._id !== currentUser._id ?
+        aMessage.sender._id :
+        aMessage.recipient._id;
 
       const newMessage = {
-        thread: messages[0].thread,
+        thread: aMessage.thread,
         sender: currentUser._id,
         recipient: recipientField,
         ...values,
@@ -80,11 +89,15 @@ const Thread: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonGrid>
-          {messages.map((msg: any) => <Message key={msg._id} message={msg} />)}
-        </IonGrid>
+        {!messages ? (
+          <LoaderFallback />
+        ) : (
+            <IonGrid>
+              {messages.map((msg: any) => <Message key={msg._id} message={msg} />)}
+            </IonGrid>
+          )}
       </IonContent>
-      <IonFooter>
+      <IonFooter className="inbox-box-footer">
         <Formik
           validationSchema={messageSchema}
           onSubmit={handleSubmit}
@@ -100,23 +113,25 @@ const Thread: React.FC = () => {
             isSubmitting,
           }: any) => (
               <Form noValidate>
-                <IonGrid className="ion-no-padding">
+                <IonGrid className="ion-no-padding message-form-grid">
                   <IonRow>
-                    <IonCol size="3" className="ion-no-padding d-flex ion-align-items-center ion-justify-content-start">
+                    <IonCol
+                      size="4"
+                      className="ion-no-padding d-flex ion-align-items-center ion-justify-content-start">
                       <IonButtons>
-                        <IonButton>
+                        <IonButton size="small">
                           <IonIcon slot="icon-only" icon={call} />
                         </IonButton>
-                        <IonButton>
+                        <IonButton size="small">
                           <IonIcon slot="icon-only" icon={documentAttach} />
                         </IonButton>
                       </IonButtons>
                     </IonCol>
-                    <IonCol size="7" className="ion-no-padding d-flex ion-align-items-center message-col">
+                    <IonCol size="6" className="ion-no-padding d-flex ion-align-items-center message-col">
                       <IonTextarea
                         value={values.body || ""}
                         rows={1}
-                        className={`ion-no-margin ${touched.body && errors.body ? "has-error" : ""}`}
+                        className={`ion-no-margin message-input ${touched.body && errors.body ? "has-error" : ""}`}
                         name="body"
                         onIonChange={handleChange}
                         onIonBlur={handleBlur}

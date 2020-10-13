@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { IonContent, IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonText, IonList, IonItem, IonLabel, IonSpinner, IonChip } from "@ionic/react";
+import { IonContent, IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonText, IonChip, useIonViewDidEnter, useIonViewWillLeave } from "@ionic/react";
 import { useParams } from "react-router";
 import moment from "moment";
 
 import { getById } from "../http/guides";
 import useToastManager from "../lib/toast-hook";
+import LoaderFallback from "../components/LoaderFallback";
+import ucFirst from "../lib/uc-first";
 
 export default function Guide() {
   const { guideId } = useParams();
-  const [guide, setGuide] = useState<any>(null);
+  let [guide, setGuide] = useState<any>(null);
   const { onError } = useToastManager();
 
   const getGuideDetails = async () => {
@@ -20,8 +22,12 @@ export default function Guide() {
     }
   };
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     getGuideDetails().catch(error => onError(error.message));
+  });
+
+  useEffect(() => () => {
+    setGuide = () => null;
   }, []);
 
   return (
@@ -35,22 +41,20 @@ export default function Guide() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <div className="ion-padding-horizontal">
-          {!guide ? (
-            <div className="h100 d-flex ion-justify-content-center ion-align-items-center">
-              <IonSpinner name="crescent" />
-            </div>
-          ) : (
+        {!guide ? (
+          <LoaderFallback />
+        ) : (
+            <div className="ion-padding-horizontal">
               <IonText>
-                <h2>{guide!.title}</h2>
+                <h2>{ucFirst(guide!.title)}</h2>
                 <small>Posted {moment(guide!.createdAt).format("LT")}</small>
                 <div className="ion-margin-vertical">{guide!.body}</div>
                 {guide!.tags.map((tag: any, index: number) =>
                   <IonChip key={index} color="tertiary">{tag}</IonChip>
                 )}
               </IonText>
-            )}
-        </div>
+            </div>
+          )}
       </IonContent>
     </IonPage>
   );

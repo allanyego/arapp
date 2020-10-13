@@ -1,5 +1,5 @@
-import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, IonRouterLink } from '@ionic/react';
-import React, { useState, useRef, useEffect } from 'react';
+import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, IonRouterLink, useIonViewWillLeave, IonIcon, IonSpinner } from '@ionic/react';
+import React, { useState, useRef } from 'react';
 import UserHeader from '../components/UserHeader';
 import { useAppContext } from '../lib/context-lib';
 import { Plugins } from "@capacitor/core"
@@ -7,6 +7,7 @@ import { Plugins } from "@capacitor/core"
 import { postIncident } from "../http/incidents";
 import useToastManager from '../lib/toast-hook';
 import "./Sos.css";
+import { ellipse } from 'ionicons/icons';
 
 const { Geolocation } = Plugins;
 
@@ -14,38 +15,47 @@ const hasImageCapture = () => "ImageCapture" in window;
 
 const Sos: React.FC = () => {
   const [isSubmitting, setSubmitting] = useState(false);
-  const [stream, setStream] = useState(null);
-  const [imageCapture, setImageCapture] = useState(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  // const [imageCapture, setImageCapture] = useState(null);
+  const [isRecording, setRecording] = useState(false);
   const videoElement = useRef<HTMLVideoElement>(null);
   const { currentUser } = useAppContext() as any;
   const { onError, onSuccess } = useToastManager();
 
-  const initPhotoCapabilities = async (imageCapture: any) => {
-    const c = await imageCapture.getPhotoCapabilities();
-  };
+  const stopStream = () => {
+    stream && stream.getTracks().forEach(track => track.stop());
+    setStream(null);
+    setRecording(false);
+  }
 
-  const initStream = async (stream: any) => {
-    setStream(stream);
-    videoElement.current!.srcObject = stream;
+  // const initPhotoCapabilities = async (imageCapture: any) => {
+  //   await imageCapture.getPhotoCapabilities();
+  // };
 
-    if (hasImageCapture()) {
-      const _imgCapture = new (window as any).ImageCapture(stream.getVideoTracks()[0]);
-      setImageCapture(_imgCapture);
-      await initPhotoCapabilities(_imgCapture);
-    } else {
-      onError("No image capture.");
-    }
+  const initStream = async (strm: MediaStream) => {
+    setStream(strm);
+    videoElement.current!.srcObject = strm;
+
+    // if (hasImageCapture()) {
+    //   const _imgCapture = new (window as any).ImageCapture(stream.getVideoTracks()[0]);
+    //   setImageCapture(_imgCapture);
+    //   await initPhotoCapabilities(_imgCapture);
+    // } else {
+    //   onError("No image capture.");
+    // }
   };
 
   const initCamera = async (constraints = {
-    facingMode: "environment"
+    video: {
+      facingMode: "environment"
+    },
+    audio: true
   }) => {
     try {
       const _stream = await window.navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
         ...constraints
       });
+      setRecording(true);
 
       initStream(_stream);
     } catch (error) {
@@ -57,6 +67,7 @@ const Sos: React.FC = () => {
     setSubmitting(true);
     try {
       const { coords } = await Geolocation.getCurrentPosition();
+      initCamera().catch(error => onError(error.message));
       await postIncident({
         location: {
           latitude: coords.latitude,
@@ -73,9 +84,7 @@ const Sos: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    initCamera().catch(error => onError(error.message));
-  }, []);
+  useIonViewWillLeave(stopStream);
 
   return (
     <IonPage>
@@ -83,7 +92,7 @@ const Sos: React.FC = () => {
       <IonContent fullscreen style={{
         position: "relative"
       }}>
-        {hasImageCapture() && (
+        {hasImageCapture() && isRecording && (
           <video
             className="video-stream"
             ref={videoElement}
@@ -103,20 +112,36 @@ const Sos: React.FC = () => {
             ) : (
                 <>
                   <IonText>
-                    <p>Tap here to send out SOS message</p>
+                    <p>
+                      {isRecording ? "Stop recording" : "Tap here to send out SOS message"}
+                    </p>
                   </IonText>
-                  <IonButton color="danger" size="large" expand="block"
-                    onClick={onSendSos}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Sending" : "Send SOS"}
-                  </IonButton>
+                  {isRecording ? (
+                    <IonButton
+                      key="stop-recording-btn"
+                      fill="outline"
+                      color="dark"
+                      size="large"
+                      expand="block"
+                      onClick={stopStream}
+                    >
+                      Stop recording
+                      <IonIcon icon={ellipse} slot="end" />
+                    </IonButton>
+                  ) : (
+                      <IonButton color="danger" size="large" expand="block"
+                        onClick={onSendSos}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Sending" : "Send SOS"}
+                      </IonButton>
+                    )}
                 </>
               )}
           </IonCol>
         </IonRow>
       </IonContent>
-    </IonPage>
+    </IonPage >
   );
 };
 

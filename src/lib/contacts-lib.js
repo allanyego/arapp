@@ -13,7 +13,7 @@ async function onResume(resumeEvent) {
           ...currentUser,
           emergencyContact: {
             displayName: contact.displayName || contact.name,
-            phone: contact.phoneNumbers[0],
+            phone: contact.phoneNumbers[0].value,
           },
         },
       });

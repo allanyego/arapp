@@ -24,7 +24,7 @@ const ToastManager: React.FC = () => {
           onDidDismiss={popNotification}
           message={notification.message}
           color={notification.type}
-          duration={1600}
+          duration={2500}
         />
       ))}
     </>

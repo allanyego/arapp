@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { IonText, IonPage, IonContent, IonChip, IonRow, IonCol, IonGrid, IonButton, IonList, IonItem, IonLabel, IonIcon, IonCard, IonCardHeader, IonCardContent, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonSpinner, IonModal, IonTextarea } from "@ionic/react";
-import { caretDown, caretUp, call, mail, chatboxEllipses, heartCircleOutline } from "ionicons/icons";
+import React, { useState } from "react";
+import { IonText, IonPage, IonContent, IonChip, IonRow, IonCol, IonGrid, IonButton, IonList, IonItem, IonLabel, IonIcon, IonCard, IonCardHeader, IonCardContent, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonModal, IonTextarea } from "@ionic/react";
+import { caretDown, caretUp, call, mail, chatboxEllipses, heartCircleOutline, create, alertCircle } from "ionicons/icons";
 import moment from "moment";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -8,16 +8,15 @@ import * as Yup from "yup";
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import "./Profile.css";
 import Rating from "../components/Rating";
-import { useParams } from "react-router";
-import { getById } from "../http/users";
 import { useAppContext } from "../lib/context-lib";
 import { USER, STORAGE_KEY } from "../http/constants";
 import { sendMessage } from "../http/messages";
 import useToastManager from "../lib/toast-hook";
 import useContacts from "../lib/contacts-lib";
 import { setObject } from "../lib/storage";
+import LoaderFallback from "./LoaderFallback";
 
-interface ProfileData {
+export interface ProfileData {
   _id?: string,
   fullName: string,
   username: string,
@@ -39,26 +38,7 @@ interface ProfileData {
   rating?: number,
 }
 
-const Profile: React.FC = () => {
-  const { userId } = useParams();
-  const [user, setUser] = useState(null);
-  const { currentUser } = useAppContext() as any;
-  const { onError } = useToastManager();
-
-  useEffect(() => {
-    if (userId) {
-      getById(userId).then(({ data }: any) => {
-        if (data) {
-          setUser(data);
-        } else {
-          setUser(currentUser);
-        }
-      }).catch(error => onError(error.message));
-    } else {
-      setUser(currentUser);
-    }
-  }, []);
-
+const Profile: React.FC<{ user: ProfileData | null }> = ({ user }) => {
   return (
     <IonPage>
       <IonHeader>
@@ -70,15 +50,15 @@ const Profile: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonGrid>
-          <IonRow>
-            {!user ? (
-              <IonCol className="d-flex ion-justify-content-center ion-align-items-center">
-                <IonSpinner name="crescent" />
-              </IonCol>
-            ) : (<UserDetails user={user as any} />)}
-          </IonRow>
-        </IonGrid>
+        {!user ? (
+          <LoaderFallback />
+        ) : (
+            <IonGrid>
+              <IonRow>
+                <UserDetails user={user as any} />
+              </IonRow>
+            </IonGrid>
+          )}
       </IonContent>
     </IonPage>
   );
@@ -269,7 +249,7 @@ function UserDetails({ user }: { user: ProfileData }) {
           </IonItem>)}
         </IonList>
       </div>
-      {(currentUser._id === user._id) && !currentUser.emergencyContact && (
+      {(currentUser._id === user._id) && (
         <ContactButton />
       )}
     </IonCol>
@@ -288,7 +268,7 @@ function ContactButton() {
         ...currentUser,
         emergencyContact: {
           displayName: contact.displayName || contact.name,
-          phone: contact.phoneNumbers[0],
+          phone: contact.phoneNumbers[0].value,
         }
       };
 
@@ -311,13 +291,22 @@ function ContactButton() {
       ) : (
           <IonText>
             <span className="ion-text-capitalize">
-              {currentUser.emergencyContact.displayName}
-            </span> is your current emergency contact.
+              Current emergency contact. <br />
+              <span className="ion-padding-start">
+                <strong>{currentUser.emergencyContact.displayName}</strong><br />
+                <strong>{currentUser.emergencyContact.phone}</strong>
+              </span>
+            </span>
           </IonText>
         )}
-      <IonButton color="dark" expand="block" onClick={onContactPick}>{
-        !currentUser.emergencyContact ? "Select" : "Change"
-      }</IonButton>
+      <IonButton color="dark" expand="block" onClick={onContactPick}>
+        {
+          <>
+            {!currentUser.emergencyContact ? "Select" : "Change"}
+            < IonIcon slot="end" icon={!currentUser.emergencyContact ? alertCircle : create} />
+          </>
+        }
+      </IonButton>
     </>
   );
 }

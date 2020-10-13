@@ -3,5 +3,6 @@
   top: 68px;
   right: 0;
   width: 40vw;
-  height: 30%;
+  height: 30vh;
+  object-fit: cover;
 }

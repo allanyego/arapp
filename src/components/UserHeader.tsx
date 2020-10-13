@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { IonHeader, IonToolbar, IonAvatar, IonTitle, IonButtons, IonButton, IonIcon, IonPopover, IonList, IonItem, IonLabel } from "@ionic/react";
 import { ellipsisVertical, list, exit } from "ionicons/icons";
 import { useHistory } from "react-router";
+
 import { useAppContext } from "../lib/context-lib";
 import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { clear } from "../lib/storage";
 import useToastManager from "../lib/toast-hook";
+import "./UserHeader.css";
 
 export default function UserHeader({ title }: { title: string }) {
   const history = useHistory();
@@ -32,13 +34,13 @@ export default function UserHeader({ title }: { title: string }) {
   };
 
   return (
-    <IonHeader>
+    <IonHeader className="user-header">
       <IonToolbar>
-        <IonAvatar slot="start" className="ion-padding" onClick={toProfile}>
+        <IonAvatar slot="start" className="header-avatar" onClick={toProfile}>
           <img src={defaultAvatar} alt={currentUser.fullName} />
         </IonAvatar>
         <IonTitle>{title}</IonTitle>
-        <IonButtons slot="secondary">
+        <IonButtons slot="end">
           <IonButton onClick={onShowPopover}>
             <IonIcon slot="icon-only" icon={ellipsisVertical} />
           </IonButton>
@@ -53,7 +55,7 @@ export default function UserHeader({ title }: { title: string }) {
         <IonList>
           <IonItem routerLink="/app/professionals">
             <IonIcon slot="start" icon={list} />
-            <IonLabel>Find professionals</IonLabel>
+            <IonLabel>Talk to someone</IonLabel>
           </IonItem>
           <IonItem onClick={handleLogout}>
             <IonIcon color="danger" slot="start" icon={exit} />

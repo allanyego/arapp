@@ -76,7 +76,7 @@ function AccountTypeCard({ accountType, icon, settingUp, setSettingUp }: Account
   return (
     <IonCard button onClick={setAccountType as any}>
       <IonCardContent>
-        <div>
+        <div className="d-flex ion-justify-content-center">
           {loading ? <IonSpinner name="crescent" /> : <IonIcon icon={icon} />}
         </div>
         <IonText>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonIcon, IonButtons, IonSearchbar, IonGrid, IonItem, IonLabel, IonAvatar, IonList, IonChip } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonIcon, IonButtons, IonSearchbar, IonGrid, IonItem, IonLabel, IonAvatar, IonList, IonChip, useIonViewDidEnter, useIonViewWillLeave } from '@ionic/react';
 import { search } from 'ionicons/icons';
 import { useHistory } from 'react-router';
 
@@ -9,12 +9,13 @@ import defaultAvatar from "../assets/img/default_avatar.jpg";
 import { getUsers } from "../http/users";
 import useToastManager from '../lib/toast-hook';
 import { useAppContext } from '../lib/context-lib';
+import LoaderFallback from '../components/LoaderFallback';
 
 const Listing: React.FC = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setSearching] = useState(false);
-  const [professionals, setProfessionals] = useState<any>([]);
+  let [professionals, setProfessionals] = useState<any[] | null>(null);
   const history = useHistory();
   const { currentUser } = useAppContext() as any;
   const { onError } = useToastManager();
@@ -28,8 +29,12 @@ const Listing: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     fetchProfessionals({}).catch(error => onError(error.message));
+  });
+
+  useEffect(() => () => {
+    setProfessionals = () => null;
   }, []);
 
   const toProfile = () => history.push('/app/profile');
@@ -66,7 +71,7 @@ const Listing: React.FC = () => {
               <IonIcon slot="icon-only" icon={search} />
             </IonButton>
           </IonButtons>
-          <IonTitle>Find help</IonTitle>
+          <IonTitle>Professional listing</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
@@ -90,11 +95,15 @@ const Listing: React.FC = () => {
             </IonGrid>
           </div>
         )}
-        <IonList lines="full">
-          {professionals.map((prof: any) => prof._id !== currentUser._id ? (
-            <ListingItem key={prof._id} prof={prof} />
-          ) : null)}
-        </IonList>
+        {!professionals ? (
+          <LoaderFallback />
+        ) : (
+            <IonList lines="full">
+              {professionals.map((prof: any) => prof._id !== currentUser._id ? (
+                <ListingItem key={prof._id} prof={prof} />
+              ) : null)}
+            </IonList>
+          )}
       </IonContent>
     </IonPage>
   );
@@ -104,7 +113,7 @@ export default Listing;
 
 function ListingItem({ prof }: any) {
   return (
-    <IonItem routerLink={`/app/profile/${prof._id}`}>
+    <IonItem routerLink={`/app/profile/${prof._id}`} button detail>
       <IonAvatar slot="start">
         <img src={defaultAvatar} alt={prof.fullName} />
       </IonAvatar>
