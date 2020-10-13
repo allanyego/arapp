@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IonPage, IonContent, IonFooter, IonButtons, IonButton, IonIcon, IonHeader, IonBackButton, IonToolbar, IonTitle, IonGrid, IonRow, IonCard, IonCol, IonText, IonTextarea } from "@ionic/react";
-import { attachOutline, callOutline, sendOutline } from "ionicons/icons";
+import { attachOutline, callOutline, sendOutline, caretForwardCircle, call, documentAttach } from "ionicons/icons";
 import moment from "moment";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -76,7 +76,7 @@ const Thread: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/app/chat" />
           </IonButtons>
-          <IonTitle>{(state && state.fullName) || "...user..."}</IonTitle>
+          <IonTitle className="ion-text-capitalize">{(state && state.fullName) || "...user..."}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -100,15 +100,15 @@ const Thread: React.FC = () => {
             isSubmitting,
           }: any) => (
               <Form noValidate>
-                <IonGrid>
+                <IonGrid className="ion-no-padding">
                   <IonRow>
-                    <IonCol size="3" className="ion-no-padding d-flex ion-align-items-center ion-justify-content-center">
+                    <IonCol size="3" className="ion-no-padding d-flex ion-align-items-center ion-justify-content-start">
                       <IonButtons>
                         <IonButton>
-                          <IonIcon slot="icon-only" icon={callOutline} />
+                          <IonIcon slot="icon-only" icon={call} />
                         </IonButton>
                         <IonButton>
-                          <IonIcon slot="icon-only" icon={attachOutline} />
+                          <IonIcon slot="icon-only" icon={documentAttach} />
                         </IonButton>
                       </IonButtons>
                     </IonCol>
@@ -116,7 +116,7 @@ const Thread: React.FC = () => {
                       <IonTextarea
                         value={values.body || ""}
                         rows={1}
-                        className={"ion-no-margin" + touched.body && errors.body ? " has-error" : ""}
+                        className={`ion-no-margin ${touched.body && errors.body ? "has-error" : ""}`}
                         name="body"
                         onIonChange={handleChange}
                         onIonBlur={handleBlur}
@@ -125,7 +125,7 @@ const Thread: React.FC = () => {
                     <IonCol size="2" className="ion-no-padding d-flex ion-align-items-center ion-justify-content-center">
                       <IonButtons>
                         <IonButton disabled={!isValid || isSubmitting} type="submit">
-                          <IonIcon slot="icon-only" icon={sendOutline} />
+                          <IonIcon slot="icon-only" icon={caretForwardCircle} />
                         </IonButton>
                       </IonButtons>
                     </IonCol>
@@ -149,7 +149,7 @@ function Message({ message }: any) {
       <IonCol size="7">
         <IonCard className="ion-padding">
           <IonText>
-            <h5 className="ion-no-margin">{message.sender.fullName}</h5>
+            <h5 className="ion-no-margin ion-text-capitalize">{message.sender.fullName}</h5>
             <p className="ion-no-margin">{message.body}</p>
           </IonText>
           <IonText color="medium"><small className="ion-float-right">{moment(message.createdAt).format('LT')}</small></IonText>

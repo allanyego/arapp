@@ -22,8 +22,8 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
       const { data } = await signIn(values.username.trim(), values.password);
-      setCurrentUser(data);
       setSubmitting(false);
+      setCurrentUser(data);
       await setObject(STORAGE_KEY, {
         currentUser: data,
       });

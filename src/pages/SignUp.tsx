@@ -13,8 +13,8 @@ const signUpSchema = Yup.object({
   fullName: Yup.string().required("Enter your full name."),
   email: Yup.string().email("Enter a valid email.").required("Enter your email."),
   username: Yup.string().required("Enter a username."),
-  gender: Yup.mixed().oneOf(["male", "female"]).required("Select your gender."),
-  birthday: Yup.date().required("Enter your birthday."),
+  gender: Yup.mixed().oneOf(["male", "female"]),
+  birthday: Yup.date(),
   password: Yup.string().min(8, "Too short.").max(40, "Too long.").required("Enter your password."),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords do not match.")
@@ -40,8 +40,8 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      const { countryCode, phone, ...rest } = values;
-      rest.phone = countryCode + phone;
+      const { countryCode, phone, confirmPassword, ...rest } = values;
+      rest.phone = `+${countryCode + phone}`;
       const { data } = await signUp(rest);
       setCurrentUser(data);
       setSubmitting(false);
@@ -52,9 +52,10 @@ const SignUp: React.FC = () => {
       history.push("/account-type");
     } catch (error) {
       setSubmitting(false);
-      onError(error.message)
+      onError(error.message);
     }
   };
+
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -151,6 +152,7 @@ const SignUp: React.FC = () => {
             <IonText>
               Already have an account? <IonRouterLink href="/sign-in">Sign in</IonRouterLink>
             </IonText>
+
           </IonCol>
         </IonRow>
       </IonContent>

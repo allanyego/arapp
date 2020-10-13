@@ -46,7 +46,7 @@ const Listing: React.FC = () => {
     setSearching(true);
 
     try {
-      setProfessionals(await fetchProfessionals(searchTerm));
+      await fetchProfessionals(searchTerm);
     } catch (error) {
       console.error(error);
     } finally {
@@ -109,13 +109,13 @@ function ListingItem({ prof }: any) {
         <img src={defaultAvatar} alt={prof.fullName} />
       </IonAvatar>
       <IonLabel>
-        <h2>{prof.fullName}</h2>
+        <h2 className="ion-text-capitalize">{prof.fullName}</h2>
         <p>{prof.bio || "No bio."}</p>
-        {prof.rating ? (
+        {prof.rating && (
           <>
             <Rating rating={prof.rating} /><br />
           </>
-        ) : "No rating."}
+        )}
         {prof.speciality.map((s: any) => <IonChip>{s}</IonChip>)}
       </IonLabel>
     </IonItem>

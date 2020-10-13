@@ -159,7 +159,7 @@ function UserDetails({ user }: { user: ProfileData }) {
           <IonButtons slot="end">
             <IonButton onClick={toggleModal}>Cancel</IonButton>
           </IonButtons>
-          <IonTitle>{user.fullName}</IonTitle>
+          <IonTitle className="ion-text-capitalize">{user.fullName}</IonTitle>
         </IonToolbar>
         <IonRow className="h100">
           <IonCol className="ion-align-self-center">
@@ -305,10 +305,20 @@ function ContactButton() {
 
   return (
     <>
-      <IonText>
-        Please select your emergency contact.
-      </IonText>
-      <IonButton color="dark" expand="block" onClick={pickContact}>Select</IonButton>
+      {!currentUser.emergencyContact ? (
+        <IonText color="danger">
+          Please select your emergency contact.
+        </IonText>
+      ) : (
+          <IonText>
+            <span className="ion-text-capitalize">
+              {currentUser.emergencyContact.displayName}
+            </span> is your current emergency contact.
+          </IonText>
+        )}
+      <IonButton color="dark" expand="block" onClick={onContactPick}>{
+        !currentUser.emergencyContact ? "Select" : "Change"
+      }</IonButton>
     </>
   );
 }

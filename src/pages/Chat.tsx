@@ -52,7 +52,7 @@ function ThreadRibbon({ thread }: any) {
         <img src={defaultAvatar} alt={otherUser.fullName} />
       </IonAvatar>
       <IonLabel>
-        <h2>{otherUser.fullName}</h2>
+        <h2 className="ion-text-capitalize">{otherUser.fullName}</h2>
         <IonText color="medium">{thread.lastMessage.body}</IonText>
       </IonLabel>
     </IonItem>
