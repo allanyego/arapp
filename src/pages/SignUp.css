@@ -1,0 +1,5 @@
+.item.country-code-preview::part(native) {
+  height: 100%;
+  padding: 0 0.5em 0 0;
+  text-align: right;
+}

@@ -1,0 +1,36 @@
+.h100 {
+  height: 100% !important;
+}
+
+.w100 {
+  width: 100%;
+}
+
+form .has-error {
+  --border-color: var(--ion-color-danger) !important;
+  color: var(--ion-color-danger) !important;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.p-relative {
+  position: relative;
+}
+
+.section-title {
+  margin-bottom: 0;
+}
+
+.exit-app-alert .danger {
+  color: var(--ion-color-danger);
+}
+
+.border-circle {
+  border-radius: 50%;
+}
+
+.header-avatar {
+  padding: 8px;
+}

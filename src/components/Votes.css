@@ -1,0 +1,10 @@
+.votes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25em;
+}
+
+.votes strong {
+  font-size: 1.2em;
+}

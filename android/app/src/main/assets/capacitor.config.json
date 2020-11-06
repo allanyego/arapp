@@ -1,0 +1,13 @@
+{
+  "appId": "io.arapp.v1",
+  "appName": "ARApp",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2500
+    }
+  },
+  "cordova": {}
+}

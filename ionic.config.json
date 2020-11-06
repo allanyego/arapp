@@ -1,0 +1,7 @@
+{
+  "name": "ARApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

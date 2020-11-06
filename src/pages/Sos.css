@@ -1,0 +1,19 @@
+.video-stream {
+  position: absolute;
+  top: 65px;
+  right: 0;
+  width: 40vw;
+  height: 30vh;
+  object-fit: cover;
+}
+
+.sos-button {
+  --dims: 8em;
+  height: var(--dims);
+  width: var(--dims);
+  border-radius: 50%;
+}
+
+.sos-button::part(native) {
+  border-radius: inherit;
+}

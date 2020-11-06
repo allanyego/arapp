@@ -1,0 +1,20 @@
+.chat-page-container {
+  flex-direction: column;
+}
+
+.chat-page-container > div {
+  flex-grow: 1;
+  overflow-y: scroll;
+}
+
+.chat-page-container .public-threads {
+  overflow-y: scroll;
+  position: relative;
+}
+
+.chat-page-container .public-threads .public-threads-form {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+}

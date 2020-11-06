@@ -1,0 +1,20 @@
+.fancy-toast {
+  --border-width: 10px;
+}
+
+.fancy-toast::part(container) {
+  border-left: var(--border-width) solid;
+  border-radius: inherit;
+}
+
+.fancy-toast.danger::part(container) {
+  border-color: var(--ion-color-danger);
+}
+
+.fancy-toast.success::part(container) {
+  border-color: var(--ion-color-success);
+}
+
+.fancy-toast.info::part(container) {
+  border-color: var(--ion-color-primary);
+}
