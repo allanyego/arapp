@@ -3,7 +3,11 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
+<<<<<<< HEAD
         applicationId "io.arapp.v1"
+=======
+        applicationId "io.safe360.v1"
+>>>>>>> a75637a9998d4d473ca83e2b32c0b83e0b061c22
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,7 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+<<<<<<< HEAD
     <string name="app_name">ARApp</string>
     <string name="title_activity_main">ARApp</string>
     <string name="package_name">io.arapp.v1</string>
     <string name="custom_url_scheme">io.arapp.v1</string>
+=======
+    <string name="app_name">Safe360</string>
+    <string name="title_activity_main">Safe360</string>
+    <string name="package_name">io.safe360.v1</string>
+    <string name="custom_url_scheme">io.safe360.v1</string>
+>>>>>>> a75637a9998d4d473ca83e2b32c0b83e0b061c22
 </resources>
