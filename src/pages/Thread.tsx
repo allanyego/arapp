@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { IonPage, IonContent, IonFooter, IonButtons, IonButton, IonIcon, IonHeader, IonBackButton, IonToolbar, IonTitle, IonGrid, IonRow, IonCard, IonCol, IonText, IonTextarea, useIonViewDidEnter, useIonViewWillLeave } from "@ionic/react";
-import { caretForwardCircle, call, documentAttach, arrowForwardCircle } from "ionicons/icons";
+import { arrowForwardCircle } from "ionicons/icons";
 import moment from "moment";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -27,30 +27,10 @@ const Thread: React.FC = () => {
   const { onError } = useToastManager();
 
   const addMessage = (msg: any) => {
-    setMessages((msgs: any) => [
+    isMounted && setMessages((msgs: any) => [
       ...msgs, msg,
     ]);
   };
-
-  useIonViewDidEnter(() => {
-    socket.emit("join", {
-      room: threadId,
-    });
-    socket.on("new-message", ({ message }: any) => {
-      addMessage(message);
-    });
-
-    getThreadMessages(threadId, currentUser.token).then(({ data }: any) => {
-      isMounted && setMessages(data);
-    }).catch(error => {
-      onError(error.message);
-      history.replace("/app/chat");
-    });
-  });
-
-  useIonViewWillLeave(() => {
-    setMounted(false);
-  });
 
   const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
     try {
@@ -90,6 +70,32 @@ const Thread: React.FC = () => {
       onError(error.message);
     }
   };
+  const leaveRoom = () => socket.emit("left-room", {
+    room: threadId,
+  });
+
+  useIonViewDidEnter(() => {
+    socket.emit("join", {
+      room: threadId,
+    });
+    socket.on("new-message", ({ message }: any) => {
+      addMessage(message);
+    });
+
+    getThreadMessages(threadId, currentUser.token).then(({ data }: any) => {
+      isMounted && setMessages(data);
+    }).catch(error => {
+      onError(error.message);
+      history.replace("/app/chat");
+    });
+  });
+
+  useIonViewWillLeave(() => {
+    leaveRoom();
+    setMounted(false);
+  });
+
+  useEffect(() => leaveRoom, []);
 
   return (
     <IonPage>

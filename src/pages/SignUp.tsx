@@ -15,6 +15,18 @@ import FormFieldFeedback from '../components/FormFieldFeedback';
 import getCountries from '../http/helpers/get-countries';
 import "./SignUp.css";
 
+const allowedAccountTypes = [
+  USER.ACCOUNT_TYPES.USER,
+  USER.ACCOUNT_TYPES.COUNSELLOR,
+  USER.ACCOUNT_TYPES.HEALTH_FACILITY,
+]
+
+const allowedAccountTypesLabels = {
+  [USER.ACCOUNT_TYPES.USER]: "User",
+  [USER.ACCOUNT_TYPES.COUNSELLOR]: "Counselloer",
+  [USER.ACCOUNT_TYPES.HEALTH_FACILITY]: "Health facility",
+};
+
 const signUpSchema = Yup.object({
   fullName: Yup.string().required("Enter your full name."),
   email: Yup.string().email("Enter a valid email.").required("Enter your email."),
@@ -28,7 +40,7 @@ const signUpSchema = Yup.object({
   countryCode: Yup.string().required("Select your country code."),
   phone: Yup.string().matches(/^[0-9]{1,}$/, "Invalid phone number.")
     .required("Enter your phone number."),
-  accountType: Yup.string().required("Select your account type"),
+  accountType: Yup.mixed().oneOf([allowedAccountTypes]).required("Select your account type"),
 });
 
 interface Extras {
@@ -135,8 +147,10 @@ const SignUp: React.FC = () => {
                   <IonItem className={touched.accountType && errors.accountType ? "has-error" : ""}>
                     <IonLabel>Account type</IonLabel>
                     <IonSelect name="accountType" onIonChange={handleChange} onIonBlur={handleBlur}>
-                      {Object.keys(USER.ACCOUNT_TYPES).map((type: string, index: number) => (
-                        <IonSelectOption key={index} value={type}>{type}</IonSelectOption>
+                      {Object.keys(allowedAccountTypes).map((type: string, index: number) => (
+                        <IonSelectOption key={index} value={type}>
+                          {allowedAccountTypesLabels[type]}
+                        </IonSelectOption>
                       ))}
                     </IonSelect>
                   </IonItem>

@@ -100,13 +100,13 @@ function GroupChatThreads({ threads, setThreads }: ThreadProps & {
       const { data } = await addPublicThread(values, currentUser.token);
       onSuccess("Thread created.");
       if (isMounted) {
+        setSubmitting(false);
         setThreads([...threads, data]);
         closeForm();
       }
     } catch (error) {
+      setSubmitting(false);
       onError(error.message);
-    } finally {
-      isVisible && setSubmitting(false);
     }
   };
   const handleSearch = (e: any) => {
