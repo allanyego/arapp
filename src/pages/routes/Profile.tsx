@@ -29,14 +29,15 @@ const MyProfile: React.FC = () => {
 }
 
 const UserProfile: React.FC = () => {
-  const { userId } = useParams();
+  const { userId } = useParams<any>();
   let [user, setUser] = useState<ProfileData | null>(null);
   const history = useHistory();
   const { onError } = useToastManager();
   const { isMounted, setMounted } = useMounted();
+  const { currentUser } = useAppContext() as any;
 
   useIonViewDidEnter(() => {
-    getById(userId).then(({ data }: any) => {
+    getById(userId, currentUser.token).then(({ data }: any) => {
       if (!isMounted) {
         return;
       }

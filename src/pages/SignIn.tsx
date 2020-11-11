@@ -6,7 +6,7 @@ import { signIn } from '../http/users';
 import { useAppContext } from '../lib/context-lib';
 import { useHistory } from 'react-router';
 import { setObject } from '../lib/storage';
-import { STORAGE_KEY } from '../http/constants';
+import { STORAGE_KEY, USER } from '../http/constants';
 import useToastManager from '../lib/toast-manager';
 import useMounted from '../lib/mount-lib';
 import FormFieldFeedback from '../components/FormFieldFeedback';
@@ -26,6 +26,11 @@ const SignIn: React.FC = () => {
     try {
       const { data } = await signIn(values.username.trim(), values.password);
       isMounted && setSubmitting(false);
+      // Check if user is admin
+      if (data.accountType === USER.ACCOUNT_TYPES.ADMIN) {
+        return onError("Admin login attempt. Use web app instead.");
+      }
+
       setCurrentUser(data);
       await setObject(STORAGE_KEY, {
         currentUser: data,

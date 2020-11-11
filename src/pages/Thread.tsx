@@ -19,7 +19,7 @@ const messageSchema = Yup.object({
 
 const Thread: React.FC = () => {
   let [messages, setMessages] = useState<any[] | null>(null);
-  const { threadId } = useParams();
+  const { threadId } = useParams<any>();
   const { state }: any = useLocation();
   const history = useHistory();
   const { currentUser, socket } = useAppContext() as any;

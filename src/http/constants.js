@@ -10,10 +10,11 @@ export const USER = {
     USER: "USER",
     COUNSELLOR: "COUNSELLOR",
     HEALTH_FACILITY: "HEALTH_FACILITY",
+    ADMIN: "ADMIN",
   },
 };
 
-export const STORAGE_KEY = "safe360-appKey";
+export const STORAGE_KEY = "arapp-erttyy-storageKey";
 
 export const PROFILE_PICTURE_FORMATS = [
   "image/jpg",

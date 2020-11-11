@@ -26,7 +26,7 @@ const Listing: React.FC = () => {
 
   const fetchProfessionals = async (opts?: any) => {
     try {
-      const { data } = await getUsers(opts);
+      const { data } = await getUsers(currentUser.token, opts);
       isMounted && setProfessionals(data);
     } catch (error) {
       onError(error.message);

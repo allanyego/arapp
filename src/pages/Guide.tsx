@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { IonContent, IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonText, IonChip, useIonViewDidEnter, useIonViewWillLeave, IonIcon, IonList, IonItem, IonLabel, IonCard } from "@ionic/react";
+import React, { useState } from "react";
+import { IonContent, IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonText, IonChip, useIonViewDidEnter, useIonViewWillLeave, IonIcon, IonCard } from "@ionic/react";
 import { useParams } from "react-router";
 import moment from "moment";
-import { arrowDown, arrowUp, linkOutline, timeOutline } from "ionicons/icons";
+import { linkOutline } from "ionicons/icons";
 
 import { getById } from "../http/guides";
 import useToastManager from "../lib/toast-manager";
@@ -11,16 +11,18 @@ import ucFirst from "../lib/uc-first";
 import Votes from "../components/Votes";
 import useMounted from "../lib/mount-lib";
 import { Plugins } from "@capacitor/core";
+import { useAppContext } from "../lib/context-lib";
 
 export default function Guide() {
-  const { guideId } = useParams();
+  const { guideId } = useParams<any>();
   let [guide, setGuide] = useState<any>(null);
   const { onError } = useToastManager();
   const { isMounted, setMounted } = useMounted();
+  const { currentUser } = useAppContext() as any;
 
   const getGuideDetails = async () => {
     try {
-      const { data } = await getById(guideId);
+      const { data } = await getById(guideId, currentUser.token);
       isMounted && setGuide(data);
     } catch (error) {
       onError(error.message);

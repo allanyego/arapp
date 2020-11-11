@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { IonPage, IonContent, IonCardTitle, IonCardContent, IonCard, IonCardHeader, IonFab, IonFabButton, IonIcon, IonCardSubtitle, useIonViewDidEnter, useIonViewWillLeave, useIonRouter } from "@ionic/react";
+import { IonPage, IonContent, IonCardTitle, IonCardContent, IonCard, IonCardHeader, IonFab, IonFabButton, IonIcon, IonCardSubtitle, useIonViewDidEnter, useIonViewWillLeave } from "@ionic/react";
 import { useRouteMatch } from "react-router";
 import moment from "moment";
 
 import { add } from "ionicons/icons";
 import { useAppContext } from "../lib/context-lib";
 import { getGuides } from "../http/guides";
-import { USER } from "../http/constants";
 import UserHeader from "../components/UserHeader";
 import useToastManager from "../lib/toast-manager";
 import LoaderFallback from "../components/LoaderFallback";
@@ -17,10 +16,11 @@ export default function Guides() {
   let [guides, setGuides] = useState<any[] | null>(null);
   const { onError } = useToastManager();
   const { isMounted, setMounted } = useMounted();
+  const { currentUser } = useAppContext() as any;
 
   const getLatestGuides = async () => {
     try {
-      const { data } = await getGuides();
+      const { data } = await getGuides(currentUser.token);
       isMounted && setGuides(data);
     } catch (error) {
       onError(error.message);
