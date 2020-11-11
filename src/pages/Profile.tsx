@@ -213,7 +213,7 @@ function UserDetails({ user }: { user: ProfileData }) {
           <p>
             {user.experience ? `${user.experience} years experience` : "No experience."} <br />
             {user.rating ? (
-              <Rating rating={user.rating} />
+              <Rating userId={user._id as string} />
             ) : (
                 <IonText>No ratings</IonText>
               )}
