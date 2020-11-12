@@ -147,7 +147,7 @@ const SignUp: React.FC = () => {
                   <IonItem className={touched.accountType && errors.accountType ? "has-error" : ""}>
                     <IonLabel>Account type</IonLabel>
                     <IonSelect name="accountType" onIonChange={handleChange} onIonBlur={handleBlur}>
-                      {Object.keys(allowedAccountTypes).map((type: string, index: number) => (
+                      {allowedAccountTypes.map((type: string, index: number) => (
                         <IonSelectOption key={index} value={type}>
                           {allowedAccountTypesLabels[type]}
                         </IonSelectOption>
