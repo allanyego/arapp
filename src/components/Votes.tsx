@@ -16,7 +16,9 @@ const Votes: React.FC<{
     isUpvote: boolean,
   } | null>(null);
   const { currentUser } = useAppContext() as any;
+  const isActive = currentUser.active;
 
+  const noop = () => null;
   const onUpvote = async () => {
     if (userVote && userVote.isUpvote) {
       setUserVote(null);
@@ -84,7 +86,7 @@ const Votes: React.FC<{
             <strong>
               <IonIcon
                 icon={arrowUp}
-                onClick={onUpvote}
+                onClick={isActive ? onUpvote : noop}
                 color={(userVote && userVote.isUpvote) ? "danger" : "dark"}
               />
             </strong>
@@ -96,10 +98,17 @@ const Votes: React.FC<{
             <strong>
               <IonIcon
                 icon={arrowDown}
-                onClick={onDownvote}
+                onClick={isActive ? onDownvote : noop}
                 color={(userVote && !userVote.isUpvote) ? "tertiary" : "dark"}
               />
             </strong>
+            <p className="ion-no-margin">
+              <IonText color="medium">
+                <small>
+                  <i>Can't vote. Account is deactivated.</i>
+                </small>
+              </IonText>
+            </p>
           </>
         )}
     </div>

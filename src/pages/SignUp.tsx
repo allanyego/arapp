@@ -23,7 +23,7 @@ const allowedAccountTypes = [
 
 const allowedAccountTypesLabels = {
   [USER.ACCOUNT_TYPES.USER]: "User",
-  [USER.ACCOUNT_TYPES.COUNSELLOR]: "Counselloer",
+  [USER.ACCOUNT_TYPES.COUNSELLOR]: "Counsellor",
   [USER.ACCOUNT_TYPES.HEALTH_FACILITY]: "Health facility",
 };
 
@@ -40,7 +40,7 @@ const signUpSchema = Yup.object({
   countryCode: Yup.string().required("Select your country code."),
   phone: Yup.string().matches(/^[0-9]{1,}$/, "Invalid phone number.")
     .required("Enter your phone number."),
-  accountType: Yup.mixed().oneOf([allowedAccountTypes]).required("Select your account type"),
+  accountType: Yup.string().oneOf(allowedAccountTypes).required("Select your account type"),
 });
 
 interface Extras {

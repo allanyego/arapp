@@ -9,11 +9,11 @@
 
 .sos-button {
   --dims: 8em;
-  height: var(--dims);
-  width: var(--dims);
-  border-radius: 50%;
+  height: var(--dims) !important;
+  width: var(--dims) !important;
+  border-radius: 50% !important;
 }
 
 .sos-button::part(native) {
-  border-radius: inherit;
+  border-radius: inherit !important;
 }

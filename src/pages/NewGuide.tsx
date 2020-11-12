@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonRow, IonCol, IonItem, IonLabel, IonInput, IonTextarea, IonButton, IonText, IonGrid, IonIcon, IonCard, IonList } from "@ionic/react";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonRow, IonCol, IonItem, IonLabel, IonInput, IonTextarea, IonButton, IonText, IonGrid, IonIcon, IonCard, IonList, useIonViewDidEnter } from "@ionic/react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useHistory } from "react-router";
@@ -40,6 +40,8 @@ const NewGuide: React.FC = () => {
       onError(error.message);
     }
   };
+
+  useIonViewDidEnter(() => !currentUser.active && history.replace("/app/guides"));
 
   return (
     <IonPage>

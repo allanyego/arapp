@@ -25,6 +25,7 @@ const Thread: React.FC = () => {
   const { currentUser, socket } = useAppContext() as any;
   const { isMounted, setMounted } = useMounted();
   const { onError } = useToastManager();
+  const isActive = currentUser.active;
 
   const addMessage = (msg: any) => {
     isMounted && setMessages((msgs: any) => [
@@ -33,6 +34,11 @@ const Thread: React.FC = () => {
   };
 
   const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
+    if (!isActive) {
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const newMessage = {
         thread: threadId,
@@ -153,6 +159,7 @@ const Thread: React.FC = () => {
                       className="ion-no-padding ion-padding-start d-flex ion-align-items-center message-col"
                     >
                       <IonTextarea
+                        disabled={!isActive}
                         value={values.body || ""}
                         rows={1}
                         className={`ion-no-margin message-input ${touched.body && errors.body ? "has-error" : ""}`}
@@ -163,10 +170,17 @@ const Thread: React.FC = () => {
                     </IonCol>
                     <IonCol size="2" className="ion-no-padding d-flex ion-align-items-center ion-justify-content-center">
                       <IonButtons>
-                        <IonButton disabled={!isValid || isSubmitting} type="submit" color="primary">
+                        <IonButton disabled={!isValid || isSubmitting || !isActive} type="submit" color="primary">
                           <IonIcon slot="icon-only" icon={arrowForwardCircle} />
                         </IonButton>
                       </IonButtons>
+                    </IonCol>
+                  </IonRow>
+                  <IonRow>
+                    <IonCol className="ion-no-padding">
+                      <p className="ion-no-margin ion-text-center account-status-ribbon">
+                        Can't sent message. Account inactive.
+                      </p>
                     </IonCol>
                   </IonRow>
                 </IonGrid>

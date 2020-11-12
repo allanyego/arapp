@@ -32,7 +32,6 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
   const setUp = async () => {
     try {
       const { data } = await getVideoToken(currentUser.token);
-      await sleep();
       isOpen && setUrl(createUrl(incident.videoEvidence, data));
     } catch (error) {
       onError(error.message);
@@ -89,7 +88,11 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
                 {location.name}
               </strong>
               <br />
-              <small>Coordinates: ({`${location.latitude}, ${location.longitude}`})</small>
+              <small>
+                Coordinates: <strong>(
+                  {`${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
+                  )</strong>
+              </small>
             </p>
             <p>
               Contact: <strong

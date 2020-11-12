@@ -38,15 +38,17 @@ export default function Guides() {
       <UserHeader title="Guides and tips" />
       <IonContent fullscreen>
 
-        <IonFab
-          vertical="center"
-          horizontal="end"
-          slot="fixed"
-        >
-          <IonFabButton size="small" color="dark" routerLink="/app/guides/new">
-            <IonIcon icon={add} />
-          </IonFabButton>
-        </IonFab>
+        {currentUser.active && (
+          <IonFab
+            vertical="center"
+            horizontal="end"
+            slot="fixed"
+          >
+            <IonFabButton size="small" color="dark" routerLink="/app/guides/new">
+              <IonIcon icon={add} />
+            </IonFabButton>
+          </IonFab>
+        )}
 
         {!guides ? (
           <LoaderFallback />

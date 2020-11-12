@@ -166,9 +166,11 @@ const Inner: React.FC<{
             {areaOfStudy}
           </IonText>
         </div>
-        <IonButton slot="end" onClick={onRemove} fill="clear" color="danger">
-          <IonIcon slot="icon-only" icon={close} />
-        </IonButton>
+        {isEditting && (
+          <IonButton slot="end" onClick={onRemove} fill="clear" color="danger">
+            <IonIcon slot="icon-only" icon={close} />
+          </IonButton>
+        )}
       </IonItem>
     );
   };
@@ -204,11 +206,11 @@ const Education: React.FC<EditableProps> = ({ user, isEditting, setEditting, cur
       setCurrentUser({
         education,
       });
-      isEditting && setEditting(false);
+      setSaving(false);
+      setEditting(false);
     } catch (error) {
+      setSaving(false);
       onError(error.message);
-    } finally {
-      isEditting && setSaving(false);
     }
   };
 

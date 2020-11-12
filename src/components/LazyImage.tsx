@@ -1,4 +1,5 @@
 import { IonIcon, IonSkeletonText } from "@ionic/react";
+import { sad } from "ionicons/icons";
 import React, { Suspense } from "react";
 import { useImage } from "react-image";
 import Centered from "./Centered";
@@ -27,8 +28,9 @@ class ImageErrorBoundary extends React.Component<any, {
         <Centered fullHeight style={{
           background: "var(--ion-color-light)",
           borderRadius: "50%",
+          fontSize: "4em",
         }}>
-          <IonIcon icon="sad" color="danger" />
+          <IonIcon icon={sad} color="danger" />
         </Centered>
       );
     }

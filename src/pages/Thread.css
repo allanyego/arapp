@@ -36,3 +36,13 @@
 .message-box-footer .message-form-grid {
   padding: 8px 0;
 }
+
+.message-box-footer .message-form-grid .account-status-ribbon {
+  margin: 0;
+  text-align: center;
+  width: 100%;
+  background: var(--ion-color-dark);
+  padding: 0.25em;
+  color: var(--ion-color-dark-contrast);
+  font-size: 95%;
+}
