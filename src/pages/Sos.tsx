@@ -100,7 +100,7 @@ const Sos: React.FC = () => {
   };
 
   const onSendSos = async () => {
-    isMounted && setSubmitting(true);
+    setSubmitting(true);
     try {
       const { coords } = await Geolocation.getCurrentPosition();
       const { data } = await postIncident({
@@ -112,15 +112,13 @@ const Sos: React.FC = () => {
         contact: currentUser.emergencyContact,
       }, currentUser.token);
 
-      if (isMounted) {
-        setIncidentId(data._id);
-        setSentAlert(true);
-        setSubmitting(false);
-      }
+      setSentAlert(true);
+      setIncidentId(data._id);
+      setSubmitting(false);
       onSuccess("Help is on the way. Consider taking a video.");
     } catch (error) {
-      isMounted && setSubmitting(false);
-      onError(error.message);
+      setSubmitting(false);
+      onError("Could not get location. Make sure GPS is on ON");
     }
   };
 
@@ -164,7 +162,7 @@ const Sos: React.FC = () => {
                       <IonText>
                         <p>
                           Tap <strong>SEND SOS</strong> to send out an alert message to{" "}
-                          <strong className="ion-text-upper">boom boom</strong>
+                          <strong className="ion-text-capitalize">{currentUser.emergencyContact.displayName}</strong>
                         </p>
                       </IonText>
 
