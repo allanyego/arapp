@@ -102,7 +102,13 @@ const Sos: React.FC = () => {
   const onSendSos = async () => {
     setSubmitting(true);
     try {
-      const { coords } = await Geolocation.getCurrentPosition();
+      let coords;
+      try {
+        coords = (await Geolocation.getCurrentPosition()).coords;
+      } catch (error) {
+        throw new Error("Could not get location. Make sure GPS is on ON");
+      }
+
       const { data } = await postIncident({
         location: {
           latitude: coords.latitude,
@@ -118,7 +124,7 @@ const Sos: React.FC = () => {
       onSuccess("Help is on the way. Consider taking a video.");
     } catch (error) {
       setSubmitting(false);
-      onError("Could not get location. Make sure GPS is on ON");
+      onError(error.message);
     }
   };
 
@@ -169,7 +175,7 @@ const Sos: React.FC = () => {
                       <Centered>
                         <IonButton
                           color="danger"
-                          size="large"
+                          size={sentAlert ? "small" : "large"}
                           className="sos-button"
                           onClick={onSendSos}
                           disabled={isSubmitting}
@@ -182,34 +188,35 @@ const Sos: React.FC = () => {
 
                   <IonText>
                     <p>
-                      {isRecording ?
-                        "Stop recording" :
-                        !sentAlert ?
-                          "Send an alert and then record a video" :
-                          (
-                            <>
-                              Tap <strong>TAKE VIDEO</strong>{" "}
+                      {!sentAlert ?
+                        "Send an alert and then record a video" :
+                        (
+                          <>
+                            Tap <strong>BUTTON</strong> below{" "}
                             to start video recording. The video is uploaded in real time and you can{" "}
                             view it later.
                             </>
-                          )
+                        )
                       }
                     </p>
                   </IonText>
                   <Centered>
                     <IonButton
                       disabled={!sentAlert}
+                      size={sentAlert ? "large" : "small"}
                       key="video-btn-ctrl"
                       fill="solid"
                       className="sos-button"
                       color={isRecording ? "danger" : "dark"}
-                      size="large"
                       onClick={isRecording ? stopStream : startRecording}
                     >
-                      {isRecording ? "Stop recording" : "Take video"}
-                      <IonIcon icon={isRecording ? stop : filmOutline} slot="end" />
+                      {/* {isRecording ? "Stop" : "Take video"} */}
+                      <IonIcon icon={isRecording ? stop : filmOutline} slot="icon-only" />
                     </IonButton>
                   </Centered>
+                  {isRecording && (
+                    <p><strong>Stop recording</strong></p>
+                  )}
                 </>
               )}
           </IonCol>
