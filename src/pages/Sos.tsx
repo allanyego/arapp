@@ -50,7 +50,7 @@ const Sos: React.FC = () => {
   const initStream = async (strm: MediaStream) => {
     isMounted && setStream(strm);
     if (videoElement.current) {
-      videoElement.current!.srcObject = strm;
+      videoElement.current.srcObject = strm;
     }
 
     // if (hasImageCapture()) {
@@ -146,9 +146,12 @@ const Sos: React.FC = () => {
       <IonContent fullscreen style={{
         position: "relative"
       }}>
-        {hasImageCapture() && isRecording && (
+        {hasImageCapture() && (
           <video
             className="video-stream"
+            style={{
+              visibility: isRecording ? "visible" : "hidden"
+            }}
             ref={videoElement}
             // onLoadedMetaData={this.handleVideoMetadata}
             autoPlay
