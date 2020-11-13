@@ -49,7 +49,9 @@ const Sos: React.FC = () => {
 
   const initStream = async (strm: MediaStream) => {
     isMounted && setStream(strm);
-    videoElement.current!.srcObject = strm;
+    if (videoElement.current) {
+      videoElement.current!.srcObject = strm;
+    }
 
     // if (hasImageCapture()) {
     //   const _imgCapture = new (window as any).ImageCapture(stream.getVideoTracks()[0]);
