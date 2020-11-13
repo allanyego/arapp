@@ -40,7 +40,7 @@ const SignUp = React.lazy(() => import("./pages/SignUp"));
 const Main = React.lazy(() => import("./pages/Main"));
 
 const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setUser] = useState<any>(null);
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [authenticating, setAuthenticating] = useState(true);
@@ -50,18 +50,18 @@ const App: React.FC = () => {
   // and pulls storage data
   const _setCurrentUser = async (currUser: ProfileData) => {
     if (!currUser) {
-      return setCurrentUser(currUser);
+      return setUser(currUser);
     }
 
     const newDetails = {
       ...currentUser,
       ...currUser,
     };
+
     await setObject(STORAGE_KEY, {
       currentUser: newDetails,
     });
-
-    isMounted && setCurrentUser(newDetails);
+    isMounted && setUser(newDetails);
   };
 
   useEffect(() => {
@@ -71,7 +71,7 @@ const App: React.FC = () => {
       }
 
       if (data && data.currentUser) {
-        setCurrentUser(data.currentUser);
+        setUser(data.currentUser);
       }
 
       setAuthenticating(false);

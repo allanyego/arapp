@@ -32,9 +32,6 @@ const SignIn: React.FC = () => {
       }
 
       setCurrentUser(data);
-      await setObject(STORAGE_KEY, {
-        currentUser: data,
-      });
 
       history.push("/app", {
         isFromAuthPage: true,

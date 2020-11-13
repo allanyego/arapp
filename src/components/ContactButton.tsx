@@ -57,8 +57,8 @@ export default function ContactButton() {
   };
 
   const initialFormValues = currentUser.emergencyContact || {
-    name: "",
-    description: ""
+    displayName: "",
+    phone: ""
   };
 
   return (
