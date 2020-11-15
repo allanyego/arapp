@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import UserHeader from '../components/UserHeader';
 import { useAppContext } from '../lib/context-lib';
 import { Plugins } from "@capacitor/core"
+import { v4 as uuidv4 } from "uuid";
 
 import { postIncident } from "../http/incidents";
 import useToastManager from '../lib/toast-manager';
@@ -17,11 +18,11 @@ const hasImageCapture = () => "ImageCapture" in window;
 
 const Sos: React.FC = () => {
   const [isSubmitting, setSubmitting] = useState(false);
-  const [sentAlert, setSentAlert] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   // const [imageCapture, setImageCapture] = useState(null);
-  const [incidentId, setIncidentId] = useState(null);
+  const [incidentId, setIncidentId] = useState<string | null>(null);
   const [isRecording, setRecording] = useState(false);
+  const [isInitiating, setInitiating] = useState(false);
   const videoElement = useRef<HTMLVideoElement>(null);
   const { currentUser, socket } = useAppContext() as any;
   const { onError, onSuccess } = useToastManager();
@@ -29,7 +30,6 @@ const Sos: React.FC = () => {
   let mediaRecorder: any;
 
   const reset = () => {
-    setSentAlert(false);
     setIncidentId(null);
     setRecording(false);
     setStream(null);
@@ -89,14 +89,20 @@ const Sos: React.FC = () => {
     },
     audio: true
   }) => {
+    setInitiating(true);
     try {
       const _stream = await window.navigator.mediaDevices.getUserMedia({
         ...constraints
       });
 
-      isMounted && setRecording(true);
+      if (isMounted) {
+        setRecording(true);
+        setInitiating(false);
+        setIncidentId(uuidv4());
+      }
       initStream(_stream);
     } catch (error) {
+      isMounted && setInitiating(false);
       onError(error.message);
     }
   };
@@ -111,7 +117,7 @@ const Sos: React.FC = () => {
         throw new Error("Could not get location. Make sure GPS is on ON");
       }
 
-      const { data } = await postIncident({
+      await postIncident({
         location: {
           latitude: coords.latitude,
           longitude: coords.longitude,
@@ -120,8 +126,6 @@ const Sos: React.FC = () => {
         contact: currentUser.emergencyContact,
       }, currentUser.token);
 
-      setSentAlert(true);
-      setIncidentId(data._id);
       setSubmitting(false);
       onSuccess("Help is on the way. Consider taking a video.");
     } catch (error) {
@@ -168,62 +172,59 @@ const Sos: React.FC = () => {
               </IonText>
             ) : (
                 <>
-                  {!isRecording && (
-                    <>
-                      <IonText>
-                        <p>
-                          Tap <strong>SEND SOS</strong> to send out an alert message to{" "}
-                          <strong className="ion-text-capitalize">{currentUser.emergencyContact.displayName}</strong>
-                        </p>
-                      </IonText>
+                  <>
+                    <IonText>
+                      <p>
+                        Tap <strong>SEND SOS</strong> to send out an alert message to{" "}
+                        <strong className="ion-text-capitalize">{currentUser.emergencyContact.displayName}</strong>
+                      </p>
+                    </IonText>
 
-                      <Centered>
-                        <IonButton
-                          color="danger"
-                          size={sentAlert ? "small" : "large"}
-                          className="sos-button"
-                          onClick={onSendSos}
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? "Hold on" : "Send SOS"}
-                        </IonButton>
-                      </Centered>
-                    </>
-                  )}
-
-                  <IonText>
-                    <p>
-                      {!sentAlert ?
-                        "Send an alert and then record a video" :
-                        (
-                          <>
-                            Tap <strong>BUTTON</strong> below{" "}
-                            to start video recording. The video is uploaded in real time and you can{" "}
-                            view it later.
-                            </>
-                        )
-                      }
-                    </p>
-                  </IonText>
-                  <Centered>
-                    <IonButton
-                      disabled={!sentAlert}
-                      size={sentAlert ? "large" : "small"}
-                      key="video-btn-ctrl"
-                      fill="solid"
-                      className="sos-button"
-                      color={isRecording ? "danger" : "dark"}
-                      onClick={isRecording ? stopStream : startRecording}
-                    >
-                      {/* {isRecording ? "Stop" : "Take video"} */}
-                      <IonIcon icon={isRecording ? stop : filmOutline} slot="icon-only" />
-                    </IonButton>
-                  </Centered>
-                  {isRecording && (
-                    <p><strong>Stop recording</strong></p>
-                  )}
+                    <Centered>
+                      <IonButton
+                        color="danger"
+                        size="large"
+                        className="sos-button"
+                        onClick={onSendSos}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Hold on" : "Send SOS"}
+                      </IonButton>
+                    </Centered>
+                  </>
                 </>
               )}
+
+            <IonText>
+              <p className="ion-text-center">
+                <strong>OR</strong>
+              </p>
+            </IonText>
+
+            <IonText>
+              <p>
+                Tap <strong>BUTTON</strong> below{" "}
+                to start video recording. The video is uploaded in real time and you can{" "}
+                view it later.
+              </p>
+            </IonText>
+            <Centered>
+              <IonButton
+                disabled={isInitiating}
+                size="large"
+                key="video-btn-ctrl"
+                fill="solid"
+                className="sos-button"
+                color={isRecording ? "danger" : "dark"}
+                onClick={isRecording ? stopStream : startRecording}
+              >
+                {/* {isRecording ? "Stop" : "Take video"} */}
+                <IonIcon icon={isRecording ? stop : filmOutline} slot="icon-only" />
+              </IonButton>
+            </Centered>
+            {isRecording && (
+              <p><strong>Stop recording</strong></p>
+            )}
           </IonCol>
         </IonRow>
       </IonContent>
