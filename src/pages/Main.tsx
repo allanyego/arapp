@@ -49,7 +49,7 @@ const Main: React.FC = () => {
 
   return (
     <>
-      <ContactPickModal isOpen={!currentUser.emergencyContact} />
+      {/* <ContactPickModal isOpen={!currentUser.emergencyContact} /> */}
       <Suspense fallback={<SuspenseFallback />}>
         <IonTabs>
           <IonRouterOutlet>
