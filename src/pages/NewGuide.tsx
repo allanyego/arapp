@@ -59,7 +59,6 @@ const NewGuide: React.FC = () => {
               initialValues={{
                 title: "",
                 body: "",
-                tags: "",
               }}
             >{({
               handleChange,
