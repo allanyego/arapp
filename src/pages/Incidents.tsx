@@ -6,9 +6,66 @@ import { useAppContext } from "../lib/context-lib";
 import useMounted from "../lib/mount-lib";
 import LoaderFallback from "../components/LoaderFallback";
 import { getUserIncidents, getVideoToken } from "../http/incidents";
-import { SERVER_URL } from "../http/constants";
+import { INCIDENT_TYPES, SERVER_URL } from "../http/constants";
 import { play } from "ionicons/icons";
-import sleep from "../lib/sleep";
+
+const IncidentItem: React.FC<{
+  incident: any,
+  onSelect: any,
+}> = ({ incident, onSelect }) => {
+  const onTap = () => onSelect(incident);
+  const isVideo = incident.type === INCIDENT_TYPES.VIDEO;
+
+  return (
+    <IonItem onClick={onTap} button key={incident._id}>
+      <IonLabel>
+        <h3 className="ion-text-capitalize">
+          {isVideo ? (
+            "Video capture"
+          ) : (
+              <>
+                SMS to <strong>{incident.contact.displayName}</strong>
+              </>
+            )}
+        </h3>
+        <p>{isVideo ? incident.videoEvidence : incident.location.name}</p>
+        <IonText color="medium">
+          <small>{moment(incident.createdAt).format("MMM Do YY")}</small>
+        </IonText>
+      </IonLabel>
+      {isVideo && (
+        <IonIcon slot="end" color="danger" icon={play} />
+      )}
+    </IonItem>
+  );
+};
+
+const IncidentContact: React.FC<{
+  incident: any,
+}> = ({ incident }) => {
+  const { location, contact } = incident;
+
+  return (
+    <>
+      <p>
+        Location: <strong>
+          {location.name}
+        </strong>
+        <br />
+        <small>
+          Coordinates: <strong>(
+                  {`${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
+                  )</strong>
+        </small>
+      </p>
+      <p>
+        Contact: <strong
+          className="ion-text-capitalize"
+        >{`${contact.displayName}, ${contact.phone}`}</strong>
+      </p>
+    </>
+  );
+};
 
 interface IncidentModalProps {
   isOpen: boolean
@@ -31,6 +88,10 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
 
   const setUp = async () => {
     try {
+      if (incident.type !== INCIDENT_TYPES.VIDEO) {
+        return;
+      }
+
       const { data } = await getVideoToken(currentUser.token);
       isOpen && setUrl(createUrl(incident.videoEvidence, data));
     } catch (error) {
@@ -43,7 +104,8 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
     return null;
   }
 
-  const { _id, videoEvidence, contact, location, createdAt } = incident;
+  const { _id, createdAt, type } = incident;
+  const isVideo = type === INCIDENT_TYPES.VIDEO;
 
   return (
     <IonModal
@@ -60,7 +122,7 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
       <IonContent fullscreen>
         <div className="h100">
           <div>
-            {videoEvidence ? (
+            {isVideo ? (
               url ? (
                 <video id="videoPlayer"
                   controls
@@ -78,28 +140,15 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
                 <div className="ion-padding" style={{
                   background: "var(--ion-color-light-shade)"
                 }}>
-                  <h5 className="ion-text-center">Incident has no attached video</h5>
+                  <h5 className="ion-text-center">SMS Alert</h5>
                 </div>
               )}
           </div>
           <div className="ion-padding-horizontal">
-            <p>
-              Location: <strong>
-                {location.name}
-              </strong>
-              <br />
-              <small>
-                Coordinates: <strong>(
-                  {`${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
-                  )</strong>
-              </small>
-            </p>
-            <p>
-              Contact: <strong
-                className="ion-text-capitalize"
-              >{`${contact.displayName}, ${contact.phone}`}</strong>
-            </p>
-            <small>{moment(createdAt).format("MMM Do YY")}</small>
+            {!isVideo && (
+              <IncidentContact incident={incident} />
+            )}
+            <small>Date: {moment(createdAt).format("MMM Do YY")}</small>
           </div>
         </div>
       </IonContent>
@@ -142,25 +191,13 @@ const Incidents: React.FC = () => {
           <LoaderFallback />
         ) : (
             <IonList lines="full">
-              {incidents.map((incident: any) => {
-                const onTap = () => setSelectedIncident(incident);
-                return (
-                  <IonItem onClick={onTap} button key={incident._id}>
-                    <IonLabel>
-                      <h3 className="ion-text-capitalize">
-                        Contact: <strong>{incident.contact.displayName}</strong>
-                      </h3>
-                      <p>{incident.location.name}</p>
-                      <IonText color="medium">
-                        <small>{moment(incident.createdAt).format("MMM Do YY")}</small>
-                      </IonText>
-                    </IonLabel>
-                    {incident.videoEvidence && (
-                      <IonIcon slot="end" color="danger" icon={play} />
-                    )}
-                  </IonItem>
-                );
-              })}
+              {incidents.map((incident: any) => (
+                <IncidentItem
+                  key={incident._id}
+                  incident={incident}
+                  onSelect={setSelectedIncident}
+                />
+              ))}
             </IonList>
           )}
 

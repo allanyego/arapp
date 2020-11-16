@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCol, IonIcon, IonInput, IonItem, IonLabel, IonRow, IonSpinner, IonText } from "@ionic/react";
 import { alertCircle, create } from "ionicons/icons";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 
@@ -11,6 +11,8 @@ import { setObject } from "../lib/storage";
 import useToastManager from "../lib/toast-manager";
 import Centered from "./Centered";
 import FormFieldFeedback from "./FormFieldFeedback";
+import { useLocation } from "react-router";
+import sleep from "../lib/sleep";
 
 const contactSchema = Yup.object({
   displayName: Yup.string().required("Enter contact display name."),
@@ -18,7 +20,11 @@ const contactSchema = Yup.object({
 });
 
 export default function ContactButton() {
+  const { state } = useLocation<{
+    setContact: boolean,
+  }>();
   const [showForm, setShowForm] = useState(false);
+  const formScrollFooter = useRef<null | HTMLDivElement>(null);
   const { currentUser, setCurrentUser } = useAppContext() as any;
   const pickContact = useContacts();
   const { onError, onSuccess } = useToastManager();
@@ -43,7 +49,12 @@ export default function ContactButton() {
       onError(error.message);
     }
   };
-  const toggleForm = () => setShowForm(!showForm);
+  const scrollFormToView = () =>
+    formScrollFooter.current && formScrollFooter.current.scrollIntoView();
+  const openForm = () => {
+    setShowForm(true);
+    sleep(200).then(scrollFormToView);
+  };
   const closeForm = () => setShowForm(false);
   const onSaveContact = (values: any, { setSubmitting }: any) => {
     setCurrentUser({
@@ -60,6 +71,10 @@ export default function ContactButton() {
     displayName: "",
     phone: ""
   };
+
+  useEffect(() => {
+    state && state.setContact && openForm();
+  }, []);
 
   return (
     <>
@@ -88,7 +103,7 @@ export default function ContactButton() {
       </IonButton>
 
       <Centered>
-        <IonButton onClick={toggleForm} fill="clear" color="medium" size="small">
+        <IonButton onClick={showForm ? closeForm : openForm} fill="clear" color="medium" size="small">
           {showForm ? "Close" : "Enter manually"}
         </IonButton>
       </Centered>
@@ -103,6 +118,7 @@ export default function ContactButton() {
             {({
               handleChange,
               handleBlur,
+              values,
               errors,
               touched,
               isValid,
@@ -111,16 +127,24 @@ export default function ContactButton() {
                 <Form noValidate>
                   <IonItem className={touched.displayName && errors.displayName ? "has-error" : ""}>
                     <IonLabel position="floating">Display name</IonLabel>
-                    <IonInput name="displayName" type="text" onIonChange={handleChange} onIonBlur={handleBlur}
-                      autofocus
+                    <IonInput
+                      value={values.displayName}
+                      name="displayName"
+                      type="text"
+                      onIonChange={handleChange}
+                      onIonBlur={handleBlur}
                     />
                   </IonItem>
                   <FormFieldFeedback {...{ errors, touched, fieldName: "displayName" }} />
 
                   <IonItem className={touched.phone && errors.phone ? "has-error" : ""}>
                     <IonLabel position="floating">Phone</IonLabel>
-                    <IonInput name="phone" type="text" onIonChange={handleChange} onIonBlur={handleBlur}
-                      autofocus
+                    <IonInput
+                      value={values.phone}
+                      name="phone"
+                      type="text"
+                      onIonChange={handleChange}
+                      onIonBlur={handleBlur}
                     />
                   </IonItem>
                   <FormFieldFeedback {...{ errors, touched, fieldName: "phone" }} />
@@ -149,6 +173,7 @@ export default function ContactButton() {
                 </Form>
               )}
           </Formik>
+          <div ref={formScrollFooter}></div>
         </IonCard>
       )}
     </>

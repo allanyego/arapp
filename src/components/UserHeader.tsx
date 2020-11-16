@@ -35,7 +35,6 @@ export default function UserHeader({ title, titleSize = "small" }: {
     try {
       await clear();
       setCurrentUser(null);
-      history.push("/sign-in");
     } catch (error) {
       onError(error.message);
     }

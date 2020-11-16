@@ -1,16 +1,18 @@
-import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, IonRouterLink, useIonViewWillLeave, IonIcon, IonSpinner } from '@ionic/react';
+import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, useIonViewWillLeave, IonIcon } from '@ionic/react';
 import React, { useState, useRef } from 'react';
 import UserHeader from '../components/UserHeader';
 import { useAppContext } from '../lib/context-lib';
 import { Plugins } from "@capacitor/core"
 import { v4 as uuidv4 } from "uuid";
 
+import LoaderFallback from "../components/LoaderFallback";
 import { postIncident } from "../http/incidents";
 import useToastManager from '../lib/toast-manager';
 import "./Sos.css";
 import { filmOutline, stop } from 'ionicons/icons';
 import useMounted from '../lib/mount-lib';
 import Centered from '../components/Centered';
+import { Link } from 'react-router-dom';
 
 const { Geolocation } = Plugins;
 
@@ -20,9 +22,10 @@ const Sos: React.FC = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   // const [imageCapture, setImageCapture] = useState(null);
-  const [incidentId, setIncidentId] = useState<string | null>(null);
+  // const [incidentId, setIncidentId] = useState<string | null>(null);
+  const incidentId = useRef<string | null>(null);
   const [isRecording, setRecording] = useState(false);
-  const [isInitiating, setInitiating] = useState(false);
+  const [isInitializing, setInitializing] = useState(false);
   const videoElement = useRef<HTMLVideoElement>(null);
   const { currentUser, socket } = useAppContext() as any;
   const { onError, onSuccess } = useToastManager();
@@ -35,10 +38,11 @@ const Sos: React.FC = () => {
     setStream(null);
   };
 
+  const setIncidentId = (id: string | null) => incidentId.current = id;
   const stopStream = () => {
     // Stop stream, recording and sent merge cue to server
     mediaRecorder && mediaRecorder.stop();
-    socket.emit("merge-video", incidentId);
+    socket.emit("merge-video", incidentId.current);
     stream && stream.getTracks().forEach(track => track.stop());
     isMounted && reset();
   }
@@ -71,9 +75,10 @@ const Sos: React.FC = () => {
       mediaRecorder = new (window as any).MediaRecorder(strm, recorderOptions);
       mediaRecorder.start(1000); // 1000 - the number of milliseconds to record into each Blob
       mediaRecorder.ondataavailable = (event: any) => {
-        if (event.data && event.data.size > 0) {
+        const { current } = incidentId;
+        if (current && event.data && event.data.size > 0) {
           socket.emit("video-evidence", {
-            incidentId,
+            incidentId: current,
             chunk: event.data,
           });
         }
@@ -89,20 +94,23 @@ const Sos: React.FC = () => {
     },
     audio: true
   }) => {
-    setInitiating(true);
+    setInitializing(true);
     try {
       const _stream = await window.navigator.mediaDevices.getUserMedia({
         ...constraints
       });
 
       if (isMounted) {
-        setRecording(true);
-        setInitiating(false);
         setIncidentId(uuidv4());
+        setInitializing(false);
+        setRecording(true);
       }
       initStream(_stream);
     } catch (error) {
-      isMounted && setInitiating(false);
+      if (isMounted) {
+        setIncidentId(null);
+        setInitializing(false);
+      }
       onError(error.message);
     }
   };
@@ -114,7 +122,7 @@ const Sos: React.FC = () => {
       try {
         coords = (await Geolocation.getCurrentPosition()).coords;
       } catch (error) {
-        throw new Error("Could not get location. Make sure GPS is on ON");
+        throw new Error("Could not get location. Make sure GPS is on ON.");
       }
 
       await postIncident({
@@ -135,7 +143,6 @@ const Sos: React.FC = () => {
   };
 
   const startRecording = () => {
-    // Record video after user has sent sos
     initCamera();
   };
 
@@ -150,40 +157,61 @@ const Sos: React.FC = () => {
       <IonContent fullscreen style={{
         position: "relative"
       }}>
-        {hasImageCapture() && (
-          <video
-            className="video-stream"
-            style={{
-              visibility: isRecording ? "visible" : "hidden"
-            }}
-            ref={videoElement}
-            // onLoadedMetaData={this.handleVideoMetadata}
-            autoPlay
-            playsInline />
-        )}
+        <div className={"video-stream" + (isRecording ? " recording" : "")}>
+          {hasImageCapture() && (
+            <video
+              style={{
+                visibility: isRecording ? "visible" : "hidden"
+              }}
+              ref={videoElement}
+              autoPlay
+              playsInline />
+          )}
+          {isInitializing && (
+            <div className="stream-loader">
+              <LoaderFallback color="light" fullHeight />
+            </div>
+          )}
+        </div>
         <IonRow className="h100 ion-text-center">
           <IonCol className="ion-align-self-center">
             {!currentUser.emergencyContact ? (
               <IonText>
-                <p>To send emergency alerts, you need to pick an emergency contact.{' '}
-                  Head on to your <IonRouterLink routerLink="/app/profile">
+                <p>To send emergency alerts, you need to pick an {" "}
+                  <strong>emergency contact</strong>.{' '}
+                  Head on to your <Link to={{
+                    pathname: "/app/profile",
+                    state: {
+                      setContact: true,
+                    }
+                  }}>
                     profile
-                  </IonRouterLink> and select one.</p>
+                  </Link> and select one.</p>
               </IonText>
             ) : (
                 <>
                   <>
-                    <IonText>
-                      <p>
-                        Tap <strong>SEND SOS</strong> to send out an alert message to{" "}
-                        <strong className="ion-text-capitalize">{currentUser.emergencyContact.displayName}</strong>
-                      </p>
-                    </IonText>
+                    {isSubmitting ? (
+                      <LoaderFallback name="lines-small">
+                        <p className="ion-no-margin text-center">
+                          Sending
+                            </p>
+                      </LoaderFallback>
+                    ) : (
+                        <IonText>
+                          <p>
+                            <small>
+                              Tap <strong>SEND SOS</strong> to send out an alert message to{" "}
+                              <strong className="ion-text-capitalize">{currentUser.emergencyContact.displayName}</strong>
+                            </small>
+                          </p>
+                        </IonText>
+                      )}
 
                     <Centered>
                       <IonButton
                         color="danger"
-                        size="large"
+                        size={isRecording ? "small" : "large"}
                         className="sos-button"
                         onClick={onSendSos}
                         disabled={isSubmitting}
@@ -201,16 +229,28 @@ const Sos: React.FC = () => {
               </p>
             </IonText>
 
-            <IonText>
-              <p>
-                Tap <strong>BUTTON</strong> below{" "}
-                to start video recording. The video is uploaded in real time and you can{" "}
-                view it later.
-              </p>
-            </IonText>
+            {!isRecording && (
+              isInitializing ? (
+                <LoaderFallback name="lines-small">
+                  <p className="ion-no-margin text-center">
+                    Initializing
+                  </p>
+                </LoaderFallback>
+              ) : (
+                  <IonText>
+                    <p>
+                      <small>
+                        Tap <strong>BUTTON</strong> below{" "}
+                        to start video recording. The video is uploaded in real time and you can{" "}
+                        view it later.
+                      </small>
+                    </p>
+                  </IonText>
+                )
+            )}
             <Centered>
               <IonButton
-                disabled={isInitiating}
+                disabled={isInitializing}
                 size="large"
                 key="video-btn-ctrl"
                 fill="solid"

@@ -1,7 +1,7 @@
-export const ROOT_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://safe360-ke.herokuapp.com"
-    : "http://localhost:8080";
+export const ROOT_URL = "http://localhost:8080";
+// process.env.NODE_ENV === "production"
+//   ? "https://safe360-ke.herokuapp.com"
+//   : "http://localhost:8080";
 
 export const SERVER_URL = `${ROOT_URL}/api/v1`;
 
@@ -28,3 +28,8 @@ export const REGEX = {
 };
 
 export const MAX_ATTACHMENT_SIZE = 2500000;
+
+export const INCIDENT_TYPES = {
+  SMS: "SMS",
+  VIDEO: "VIDEO",
+};

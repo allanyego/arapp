@@ -15,7 +15,6 @@ const newGuideSchema = Yup.object({
   title: Yup.string().max(75, "Too long.").required("Enter a title for the guide."),
   body: Yup.string().min(75, "Too short.").max(500, "Too long.")
     .required("Enter body for the guide."),
-  tags: Yup.string(),
 });
 
 const NewGuide: React.FC = () => {
@@ -26,10 +25,8 @@ const NewGuide: React.FC = () => {
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      const tags = values.tags.split(",").map((tag: string) => tag.trim());
       await addGuide(currentUser.token, {
         ...values,
-        tags: Array.from(new Set(tags)),
         links,
       });
       setSubmitting(false);
@@ -101,16 +98,6 @@ const NewGuide: React.FC = () => {
                     text={values.body}
                   />
                   <FormFieldFeedback {...{ errors, touched, fieldName: "body" }} />
-
-                  <IonItem className={touched.tags && errors.tags ? "has-error" : ""}>
-                    <IonLabel position="floating">Enter tags separated by commas</IonLabel>
-                    <IonTextarea
-                      name="tags"
-                      rows={3}
-                      onIonChange={handleChange} onIonBlur={handleBlur}
-                      placeholder="e.g. trauma, stress"
-                    />
-                  </IonItem>
 
                   <div className="ion-margin-top">
                     <ExternalLinks {...{ links, setLinks }} />
