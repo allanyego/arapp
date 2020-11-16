@@ -46,3 +46,9 @@
   color: var(--ion-color-dark-contrast);
   font-size: 95%;
 }
+
+.disabled-indicator {
+  padding: 0.25em 0;
+  color: var(--ion-color-danger-contrast);
+  background: var(--ion-color-dark);
+}

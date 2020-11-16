@@ -110,7 +110,7 @@ function GroupChatThreads({ threads, setThreads }: ThreadProps & {
     }
   };
   const handleSearch = (e: any) => {
-    const value = e.target.value.trim();
+    const value = e.target.value.trim().toLowerCase();
     if (!value) {
       setSearchResults(null);
     } else {

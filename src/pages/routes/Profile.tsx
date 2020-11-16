@@ -36,20 +36,21 @@ const UserProfile: React.FC = () => {
   const { isMounted, setMounted } = useMounted();
   const { currentUser } = useAppContext() as any;
 
-  useIonViewDidEnter(() => {
-    getById(userId, currentUser.token).then(({ data }: any) => {
+  const fetchUser = async () => {
+    try {
+      const { data } = await getById(userId, currentUser.token);
       if (!isMounted) {
         return;
       }
-
-      if (data) {
-        setUser(data);
-      } else {
-        onError("No user by that id found");
+      data ?
+        setUser(data) :
         history.replace("/app/profile");
-      }
-    }).catch(error => onError(error.message));
-  });
+    } catch (error) {
+      onError(error.message)
+    }
+  };
+
+  useIonViewDidEnter(fetchUser);
 
   useIonViewWillLeave(() => {
     setMounted(false);

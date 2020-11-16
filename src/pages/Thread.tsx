@@ -176,13 +176,9 @@ const Thread: React.FC = () => {
                       </IonButtons>
                     </IonCol>
                   </IonRow>
-                  <IonRow>
-                    <IonCol className="ion-no-padding">
-                      <p className="ion-no-margin ion-text-center account-status-ribbon">
-                        Can't sent message. Account inactive.
-                      </p>
-                    </IonCol>
-                  </IonRow>
+                  {!isActive && (
+                    <DisabledIndicator />
+                  )}
                 </IonGrid>
               </Form>
             )}
@@ -193,6 +189,20 @@ const Thread: React.FC = () => {
 };
 
 export default Thread;
+
+function DisabledIndicator() {
+  return (
+    <IonRow className="disabled-indicator">
+      <IonCol className="ion-no-padding">
+        <p className="ion-no-margin ion-text-center account-status-ribbon">
+          <small>
+            Can't sent message. Account deactivated.
+          </small>
+        </p>
+      </IonCol>
+    </IonRow>
+  );
+}
 
 function Message({ message }: any) {
   const { currentUser } = useAppContext() as any;

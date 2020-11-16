@@ -78,39 +78,43 @@ const Votes: React.FC<{
   }, []);
 
   return (
-    <div className="votes">
-      {(votes === null) ? (
-        <IonSkeletonText animated style={{ width: '15%' }} />
-      ) : (
-          <>
-            <strong>
-              <IonIcon
-                icon={arrowUp}
-                onClick={isActive ? onUpvote : noop}
-                color={(userVote && userVote.isUpvote) ? "danger" : "dark"}
-              />
-            </strong>
+    <div>
+      <div className="votes">
+        {(votes === null) ? (
+          <IonSkeletonText animated style={{ width: '15%' }} />
+        ) : (
+            <>
+              <strong>
+                <IonIcon
+                  icon={arrowUp}
+                  onClick={isActive ? onUpvote : noop}
+                  color={(userVote && userVote.isUpvote) ? "danger" : "dark"}
+                />
+              </strong>
+              <small>
+                <IonText
+                  color={userVote ? (userVote.isUpvote ? "danger" : "tertiary") : "dark"}
+                >{votes}</IonText>
+              </small>
+              <strong>
+                <IonIcon
+                  icon={arrowDown}
+                  onClick={isActive ? onDownvote : noop}
+                  color={(userVote && !userVote.isUpvote) ? "tertiary" : "dark"}
+                />
+              </strong>
+            </>
+          )}
+      </div>
+      {!isActive && (
+        <p className="ion-no-margin text-right">
+          <IonText color="medium">
             <small>
-              <IonText
-                color={userVote ? (userVote.isUpvote ? "danger" : "tertiary") : "dark"}
-              >{votes}</IonText>
+              <i>Can't vote. Account is deactivated.</i>
             </small>
-            <strong>
-              <IonIcon
-                icon={arrowDown}
-                onClick={isActive ? onDownvote : noop}
-                color={(userVote && !userVote.isUpvote) ? "tertiary" : "dark"}
-              />
-            </strong>
-            <p className="ion-no-margin">
-              <IonText color="medium">
-                <small>
-                  <i>Can't vote. Account is deactivated.</i>
-                </small>
-              </IonText>
-            </p>
-          </>
-        )}
+          </IonText>
+        </p>
+      )}
     </div>
   );
 };

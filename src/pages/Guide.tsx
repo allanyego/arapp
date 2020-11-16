@@ -55,13 +55,12 @@ export default function Guide() {
                 <IonText color="medium">
                   <small>
                     <strong className="d-flex">
-                      {moment(guide.createdAt, "YYYYMMDD").fromNow()}
+                      {moment(guide.createdAt).fromNow()}
                     </strong>
                   </small>
                 </IonText>
                 <div className="ion-margin-vertical">{guide.body}</div>
               </IonText>
-              <Tags tags={guide.tags} />
               <Links links={guide.links} />
               <Votes post={guide._id} />
             </div>
@@ -98,15 +97,5 @@ function Links({ links }: { links: any[] }) {
         );
       })}
     </div>
-  );
-}
-
-function Tags({ tags }: { tags: any[] }) {
-  return (
-    <>
-      {tags.map((tag: any, index: number) =>
-        <IonChip key={index} color="tertiary">{tag}</IonChip>
-      )}
-    </>
   );
 }
