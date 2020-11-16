@@ -75,7 +75,7 @@ function GuideCard({ guide }: any) {
         </IonCardTitle>
         <IonCardSubtitle className="ion-no-margin">
           <small>
-            <strong>{moment(guide.createdAt, "YYYYMMDD").fromNow()}</strong>
+            <strong>{moment(guide.createdAt).fromNow()}</strong>
           </small>
         </IonCardSubtitle>
       </IonCardHeader>
