@@ -1,4 +1,4 @@
-export const ROOT_URL = "http://localhost:8080";
+export const ROOT_URL = "https://safe360-ke.herokuapp.com";
 // process.env.NODE_ENV === "production"
 //   ? "https://safe360-ke.herokuapp.com"
 //   : "http://localhost:8080";
