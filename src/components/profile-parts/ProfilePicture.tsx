@@ -66,10 +66,7 @@ const ProfilePicture: React.FC<{
               {({
                 setFieldValue,
                 setFieldError,
-                setTouched,
-                setErrors,
                 values,
-                touched,
                 isValid,
                 errors,
                 isSubmitting,

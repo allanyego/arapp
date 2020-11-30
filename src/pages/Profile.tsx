@@ -13,7 +13,7 @@ import { getById } from "../http/users";
 import { useAppContext } from "../lib/context-lib";
 import { USER, STORAGE_KEY } from "../http/constants";
 import { sendMessage } from "../http/messages";
-import useToastManager from "../lib/toast-hook";
+import useToastManager from "../lib/toast-manager";
 import useContacts from "../lib/contacts-lib";
 import { setObject } from "../lib/storage";
 
@@ -40,7 +40,7 @@ interface ProfileData {
 }
 
 const Profile: React.FC = () => {
-  const { userId } = useParams();
+  const { userId } = useParams<any>();
   const [user, setUser] = useState(null);
   const { currentUser } = useAppContext() as any;
   const { onError } = useToastManager();

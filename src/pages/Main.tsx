@@ -5,22 +5,31 @@ import { informationCircle, megaphone, chatbox } from "ionicons/icons";
 import io from "socket.io-client";
 
 import { useAppContext } from "../lib/context-lib";
-import ContactPickModal from "../components/ContactPickModal";
+// import ContactPickModal from "../components/ContactPickModal";
 import SuspenseFallback from "../components/SuspenseFallback";
 import useMounted from "../lib/mount-lib";
-import { ROOT_URL } from "../http/constants";
+import { ROOT_URL, USER } from "../http/constants";
 import Incidents from "./Incidents";
+import useAlerts from "../lib/alerts";
+import useToastManager from "../lib/toast-manager";
 
+const Alerts = React.lazy(() => import("./Alerts"));
 const Guides = React.lazy(() => import("./routes/Guides"));
 const Chat = React.lazy(() => import("./routes/Chat"));
 const Profile = React.lazy(() => import("./routes/Profile"));
 const Listing = React.lazy(() => import("./Listing"));
 const Sos = React.lazy(() => import("./Sos"));
+const Appointments = React.lazy(() => import("./routes/Appointments"));
+const PoliceListing = React.lazy(() => import("./PoliceListing"));
+const VideoShares = React.lazy(() => import("./VideoShares"));
 
 const Main: React.FC = () => {
   const { url, path } = useRouteMatch();
   const { currentUser, socket, setSocket } = useAppContext() as any;
   const { isMounted, setMounted } = useMounted();
+  const { onRespond, onAlert } = useAlerts();
+  const { onInfo } = useToastManager();
+  const isLawEnforcer = currentUser.accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER;
 
   const handleSocketErr = (err: Error) => {
     console.log("Socket error", err);
@@ -33,6 +42,14 @@ const Main: React.FC = () => {
       },
       forceNew: true,
     });
+
+    if (isLawEnforcer) {
+      _socket.on("alert", ({ alert }: any) => {
+        onInfo("There is a new alert.");
+        onAlert(alert);
+      });
+      _socket.on("respond", ({ alert }: any) => onRespond(alert));
+    }
 
     _socket.on("error", handleSocketErr);
     _socket.on("connect_error", handleSocketErr);
@@ -53,13 +70,18 @@ const Main: React.FC = () => {
       <Suspense fallback={<SuspenseFallback />}>
         <IonTabs>
           <IonRouterOutlet>
-            <Route path={path} render={() => <Redirect to={`${path}/guides`} />} exact />
+            {/* <Route path={path} render={() => <Redirect to={`${path}/guides`} />} exact /> */}
             <Route path={`${path}/professionals`} component={Listing} exact />
             <Route path={`${path}/incidents`} component={Incidents} exact />
             <Route path={`${path}/sos`} component={Sos} exact />
+            <Route path={`${path}/alerts`} component={Alerts} exact />
+            <Route path={`${path}/video-shares`} component={VideoShares} exact />
+            <Route path={`${path}/police`} component={PoliceListing} exact />
+            <Route path={`${path}/appointments`} component={Appointments} />
             <Route path={`${path}/chat`} component={Chat} />
             <Route path={`${path}/guides`} component={Guides} />
             <Route path={`${path}/profile`} component={Profile} />
+            <Route render={() => <Redirect to={`${path}/guides`} />} exact />
           </IonRouterOutlet>
 
           <IonTabBar slot="bottom">
@@ -69,10 +91,12 @@ const Main: React.FC = () => {
               {/* <IonBadge>6</IonBadge> */}
             </IonTabButton>
 
-            <IonTabButton tab="sos" href={`${url}/sos`}>
-              <IonIcon icon={megaphone} />
-              <IonLabel>Send SOS</IonLabel>
-            </IonTabButton>
+            {!isLawEnforcer && (
+              <IonTabButton tab="sos" href={`${url}/sos`}>
+                <IonIcon icon={megaphone} />
+                <IonLabel>Send SOS</IonLabel>
+              </IonTabButton>
+            )}
 
             <IonTabButton tab="chat" href={`${url}/chat`}>
               <IonIcon icon={chatbox} />

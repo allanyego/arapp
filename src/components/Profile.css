@@ -1,25 +1,25 @@
-.contact-card .header,
-.contact-card .body {
+.collapsible-card .header,
+.collapsible-card .body {
   color: var(--ion-color-dark);
 }
 
-.contact-card .header {
+.collapsible-card .header {
   border-bottom: solid 0.5px var(--ion-color-light-shade);
   padding: 0.5rem;
 }
 
-.contact-card .body {
+.collapsible-card .body {
   padding-top: var(--ion-padding, 16px);
 }
 
-.contact-card .body .contact-row {
+.collapsible-card .body .contact-row {
   display: grid;
   grid-template-columns: 1fr 10fr;
   line-height: normal;
   margin-top: 0.25rem;
 }
 
-.contact-card .body .contact-row > div {
+.collapsible-card .body .contact-row > div {
   display: flex;
   align-items: center;
 }
@@ -121,8 +121,6 @@
 
 .rating-container {
   --background: var(--ion-color-light-tint);
-  --padding-start: 0;
-  --padding-end: 0;
 }
 
 .review-modal .rating-icons {

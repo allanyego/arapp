@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { IonContent, IonPage, IonList, useIonViewDidEnter, useIonViewWillLeave } from '@ionic/react';
 import { useHistory } from 'react-router';
 
-import './Listing.css';
-import { getUsers } from "../http/users";
+import { getPolice } from "../http/users";
 import useToastManager from '../lib/toast-manager';
 import { useAppContext } from '../lib/context-lib';
 import LoaderFallback from '../components/LoaderFallback';
@@ -13,19 +12,19 @@ import SearchBar from '../components/SearchBar';
 import SearchHeader from '../components/SearchHeader';
 import { USER } from '../http/constants';
 
-const Listing: React.FC = () => {
+const PoliceListing: React.FC = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [isSearching, setSearching] = useState(false);
-  let [professionals, setProfessionals] = useState<any[] | null>(null);
+  let [police, setPolice] = useState<any[] | null>(null);
   const history = useHistory();
   const { currentUser } = useAppContext() as any;
   const { onError } = useToastManager();
   const { isMounted, setMounted } = useMounted();
 
-  const fetchProfessionals = async (opts?: any) => {
+  const fetchPolice = async (opts?: any) => {
     try {
-      const { data } = await getUsers(currentUser.token, opts);
-      isMounted && setProfessionals(data);
+      const { data } = await getPolice(currentUser.token, opts);
+      isMounted && setPolice(data);
     } catch (error) {
       onError(error.message);
     }
@@ -33,11 +32,11 @@ const Listing: React.FC = () => {
 
   const onToggle = () => {
     if (showSearchBar) {
-      setProfessionals(null);
-      fetchProfessionals({});
+      setPolice(null);
+      fetchPolice({});
     }
-    setShowSearchBar(show => !show);
-  }
+    setShowSearchBar(show => !show)
+  };
   const handleSearch = async (searchTerm: string) => {
     if (!searchTerm) {
       return;
@@ -46,7 +45,7 @@ const Listing: React.FC = () => {
     setSearching(true);
 
     try {
-      await fetchProfessionals({
+      await fetchPolice({
         username: searchTerm,
       });
     } catch (error) {
@@ -56,12 +55,14 @@ const Listing: React.FC = () => {
     }
   };
 
+
   useIonViewDidEnter(() => {
+    setMounted(true);
     if (currentUser.accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER) {
       return history.replace("/app");
     }
 
-    fetchProfessionals({});
+    fetchPolice({});
   });
 
   useIonViewWillLeave(() => setMounted(false));
@@ -69,19 +70,20 @@ const Listing: React.FC = () => {
   return (
     <IonPage>
       <SearchHeader
-        title="Counsellors/Facilities"
+        title="Police"
         {...{ showSearchBar, onToggle }}
       />
+
       <IonContent fullscreen>
         {showSearchBar && (
           <SearchBar isSearching={isSearching} onSearch={handleSearch} />
         )}
-        {!professionals ? (
+        {!police ? (
           <LoaderFallback />
         ) : (
             <IonList lines="full">
-              {professionals.map((prof: any) => prof._id !== currentUser._id ? (
-                <UserListingItem key={prof._id} user={prof} />
+              {police.map((cop: any) => cop._id !== currentUser._id ? (
+                <UserListingItem key={cop._id} user={cop} />
               ) : null)}
             </IonList>
           )}
@@ -90,4 +92,4 @@ const Listing: React.FC = () => {
   );
 };
 
-export default Listing;
+export default PoliceListing;

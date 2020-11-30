@@ -1,32 +1,59 @@
-import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, useIonViewWillLeave, IonIcon } from '@ionic/react';
+import { IonButton, IonContent, IonPage, IonRow, IonCol, IonText, useIonViewWillLeave, IonIcon, IonFab, IonFabButton, useIonViewDidEnter } from '@ionic/react';
 import React, { useState, useRef } from 'react';
-import UserHeader from '../components/UserHeader';
-import { useAppContext } from '../lib/context-lib';
 import { Plugins } from "@capacitor/core"
 import { v4 as uuidv4 } from "uuid";
+import { CallNumber } from "@ionic-native/call-number";
 
+
+import { useAppContext } from '../lib/context-lib';
+import UserHeader from '../components/UserHeader';
 import LoaderFallback from "../components/LoaderFallback";
 import { postIncident } from "../http/incidents";
 import useToastManager from '../lib/toast-manager';
 import "./Sos.css";
-import { filmOutline, stop } from 'ionicons/icons';
+import { call, filmOutline, stop } from 'ionicons/icons';
 import useMounted from '../lib/mount-lib';
 import Centered from '../components/Centered';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import { USER } from '../http/constants';
 
 const { Geolocation } = Plugins;
 
 const hasImageCapture = () => "ImageCapture" in window;
+
+const CallFab: React.FC = () => {
+  const { onError } = useToastManager();
+
+  const onCall = async () => {
+    try {
+      await CallNumber.callNumber("999", true);
+    } catch (error) {
+      onError(error);
+    }
+  };
+
+  return (
+    <IonFab
+      horizontal="start"
+      slot="fixed"
+    >
+      <IonFabButton color="danger" onClick={onCall}>
+        <IonIcon icon={call} />
+      </IonFabButton>
+    </IonFab>
+  );
+};
 
 const Sos: React.FC = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   // const [imageCapture, setImageCapture] = useState(null);
   // const [incidentId, setIncidentId] = useState<string | null>(null);
-  const incidentId = useRef<string | null>(null);
   const [isRecording, setRecording] = useState(false);
   const [isInitializing, setInitializing] = useState(false);
+  const incidentId = useRef<string | null>(null);
   const videoElement = useRef<HTMLVideoElement>(null);
+  const history = useHistory();
   const { currentUser, socket } = useAppContext() as any;
   const { onError, onSuccess } = useToastManager();
   const { isMounted, setMounted } = useMounted()
@@ -125,7 +152,7 @@ const Sos: React.FC = () => {
         throw new Error("Could not get location. Make sure GPS is on ON.");
       }
 
-      await postIncident({
+      const { data } = await postIncident({
         location: {
           latitude: coords.latitude,
           longitude: coords.longitude,
@@ -133,6 +160,17 @@ const Sos: React.FC = () => {
         user: currentUser._id,
         contact: currentUser.emergencyContact,
       }, currentUser.token);
+      const { fullName, phone } = currentUser;
+      socket.emit("alert", {
+        alert: {
+          _id: data._id,
+          user: {
+            fullName,
+            phone,
+          },
+          location: data.location,
+        }
+      });
 
       setSubmitting(false);
       onSuccess("Help is on the way. Consider taking a video.");
@@ -146,6 +184,12 @@ const Sos: React.FC = () => {
     initCamera();
   };
 
+  useIonViewDidEnter(() => {
+    if (currentUser.accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER) {
+      return history.replace("/app");
+    }
+  });
+
   useIonViewWillLeave(() => {
     stopStream();
     setMounted(false);
@@ -157,6 +201,8 @@ const Sos: React.FC = () => {
       <IonContent fullscreen style={{
         position: "relative"
       }}>
+        <CallFab />
+
         <div className={"video-stream" + (isRecording ? " recording" : "")}>
           {hasImageCapture() && (
             <video
@@ -199,9 +245,11 @@ const Sos: React.FC = () => {
                       </LoaderFallback>
                     ) : (
                         <IonText>
-                          <p>
+                          <p style={{
+                            margin: "3em 0 .25em"
+                          }}>
                             <small>
-                              Tap <strong>SEND SOS</strong> to send out an alert message to{" "}
+                              Tap <strong>SEND SOS below</strong> to send out an alert message to{" "}
                               <strong className="ion-text-capitalize">{currentUser.emergencyContact.displayName}</strong>
                             </small>
                           </p>

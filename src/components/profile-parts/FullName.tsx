@@ -8,8 +8,7 @@ import FormFieldFeedback from "../FormFieldFeedback";
 import { editUser } from "../../http/users";
 import { useAppContext } from "../../lib/context-lib";
 import useToastManager from "../../lib/toast-manager";
-import useMounted from "../../lib/mount-lib";
-import sleep from "../../lib/sleep";
+import trimAndLower from "../../lib/trim-and-lower";
 
 const nameSchema = Yup.object({
   fullName: Yup.string().min(2, "Too short").required("Enter your full name"),
@@ -18,10 +17,10 @@ const nameSchema = Yup.object({
 const FullName: React.FC<EditableProps> = ({ user, isEditting, setEditting }) => {
   const { currentUser, setCurrentUser } = useAppContext() as any;
   const { onError } = useToastManager();
-  const { isMounted, setMounted } = useMounted();
 
   const handleSave = async (values: any, { setSubmitting }: any) => {
     try {
+      values.fullName = trimAndLower(values.fullName)
       await editUser(currentUser._id, currentUser.token, values);
       setCurrentUser(values);
       isEditting && setEditting(false);

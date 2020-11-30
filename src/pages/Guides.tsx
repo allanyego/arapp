@@ -11,6 +11,7 @@ import useToastManager from "../lib/toast-manager";
 import LoaderFallback from "../components/LoaderFallback";
 import ucFirst from "../lib/uc-first";
 import useMounted from "../lib/mount-lib";
+import { USER } from "../http/constants";
 
 export default function Guides() {
   let [guides, setGuides] = useState<any[] | null>(null);
@@ -33,12 +34,14 @@ export default function Guides() {
 
   useIonViewWillLeave(() => setMounted(false));
 
+  const { active, accountType } = currentUser;
+
   return (
     <IonPage>
       <UserHeader title="Guides and tips" />
       <IonContent fullscreen>
 
-        {currentUser.active && (
+        {active && accountType !== USER.ACCOUNT_TYPES.LAW_ENFORCER && (
           <IonFab
             vertical="center"
             horizontal="end"

@@ -21,3 +21,19 @@ export async function postIncident(data, token) {
     data,
   });
 }
+
+export async function shareVideoUrl(incident, shareTo, token) {
+  return await request(`${BASE_URL}/video/shares/${incident}`, {
+    method: "POST",
+    headers: constructAuthHeader(token),
+    data: {
+      shareTo,
+    },
+  });
+}
+
+export async function getVideoShares(userId, token) {
+  return await request(`${BASE_URL}/video/shares/${userId}`, {
+    headers: constructAuthHeader(token),
+  });
+}

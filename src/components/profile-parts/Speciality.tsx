@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { IonButton, IonRow, IonItem, IonCol, IonInput, IonGrid, IonText, IonBadge } from "@ionic/react";
+import React, { useEffect } from "react";
+import { IonButton, IonItem, IonInput, IonGrid, IonText, IonBadge } from "@ionic/react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -8,6 +8,7 @@ import FormFieldFeedback from "../FormFieldFeedback";
 import { editUser } from "../../http/users";
 import { useAppContext } from "../../lib/context-lib";
 import useToastManager from "../../lib/toast-manager";
+import trimAndLower from "../../lib/trim-and-lower";
 
 const specialitySchema = Yup.object({
   speciality: Yup.string().required("This shouldn't be empty."),
@@ -19,6 +20,7 @@ const Speciality: React.FC<EditableProps> = ({ user, isEditting, setEditting, cu
 
   const handleSave = async (values: any, { setSubmitting }: any) => {
     try {
+      values.speciality = trimAndLower(values.speciality);
       await editUser(currentUser._id, currentUser.token, values);
       setCurrentUser(values);
       isEditting && setEditting(false);

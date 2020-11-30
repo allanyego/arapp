@@ -1,0 +1,11 @@
+.share-results-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 65vh;
+  border-top-left-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+  background: var(--ion-color-light);
+  z-index: 3;
+}

@@ -12,7 +12,18 @@ export async function getUsers(token, { username = null, patient = false }) {
     queryParams += `?patient=true`;
   }
 
-  return await request(`${BASE_URL}/${queryParams}`, {
+  return await request(`${BASE_URL + queryParams}`, {
+    headers: constructAuthHeader(token),
+  });
+}
+
+export async function getPolice(token, { username = null }) {
+  let queryParams = "";
+  if (username) {
+    queryParams += `?username=${encodeURIComponent(username)}`;
+  }
+
+  return await request(`${BASE_URL + "/police" + queryParams}`, {
     headers: constructAuthHeader(token),
   });
 }

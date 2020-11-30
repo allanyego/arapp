@@ -14,18 +14,16 @@ import { ProfileData } from '../components/Profile';
 import FormFieldFeedback from '../components/FormFieldFeedback';
 import getCountries from '../http/helpers/get-countries';
 import "./SignUp.css";
-
-const allowedAccountTypes = [
-  USER.ACCOUNT_TYPES.USER,
-  USER.ACCOUNT_TYPES.COUNSELLOR,
-  USER.ACCOUNT_TYPES.HEALTH_FACILITY,
-]
+import trimAndLower from '../lib/trim-and-lower';
 
 const allowedAccountTypesLabels = {
   [USER.ACCOUNT_TYPES.USER]: "User",
   [USER.ACCOUNT_TYPES.COUNSELLOR]: "Counsellor",
   [USER.ACCOUNT_TYPES.HEALTH_FACILITY]: "Health facility",
+  [USER.ACCOUNT_TYPES.LAW_ENFORCER]: "Law enforcer",
 };
+
+const allowedAccountTypes = Object.keys(allowedAccountTypesLabels);
 
 const signUpSchema = Yup.object({
   fullName: Yup.string().required("Enter your full name."),
@@ -71,8 +69,14 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      const { countryCode, phone, confirmPassword, ...rest } = values;
-      rest.phone = `+${countryCode + phone}`;
+      let { countryCode, phone, confirmPassword, username, email, name, ...rest } = values;
+      rest = {
+        phone: `+${countryCode + phone}`,
+        username: trimAndLower(username),
+        name: trimAndLower(name),
+        email: trimAndLower(email),
+      };
+
       const { data } = await signUp(rest);
       setCurrentUser(data);
       isMounted && setSubmitting(false);

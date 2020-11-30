@@ -1,0 +1,7 @@
+.search-bar {
+  background-color: var(--ion-color-light);
+}
+
+.search-bar .search-btn::part(native) {
+  padding: 0.5em;
+}

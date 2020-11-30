@@ -10,6 +10,7 @@ import { STORAGE_KEY, USER } from '../http/constants';
 import useToastManager from '../lib/toast-manager';
 import useMounted from '../lib/mount-lib';
 import FormFieldFeedback from '../components/FormFieldFeedback';
+import trimAndLower from '../lib/trim-and-lower';
 
 const loginSchema = Yup.object({
   username: Yup.string().required("Enter your username."),
@@ -24,7 +25,7 @@ const SignIn: React.FC = () => {
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      const { data } = await signIn(values.username.trim(), values.password);
+      const { data } = await signIn(trimAndLower(values.username), values.password);
       isMounted && setSubmitting(false);
       // Check if user is admin
       if (data.accountType === USER.ACCOUNT_TYPES.ADMIN) {

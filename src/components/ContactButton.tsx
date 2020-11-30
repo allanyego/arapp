@@ -109,7 +109,7 @@ export default function ContactButton() {
       </Centered>
 
       {showForm && (
-        <IonCard>
+        <IonCard className="ion-no-margin">
           <Formik
             validationSchema={contactSchema}
             onSubmit={onSaveContact}

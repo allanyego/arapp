@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IonText, IonPage, IonContent, IonChip, IonRow, IonCol, IonGrid, IonButton, IonList, IonItem, IonLabel, IonIcon, IonCard, IonCardHeader, IonCardContent, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonModal, IonTextarea, IonSpinner, IonCardTitle } from "@ionic/react";
+import { IonText, IonPage, IonContent, IonChip, IonRow, IonCol, IonGrid, IonButton, IonList, IonItem, IonLabel, IonIcon, IonCard, IonCardHeader, IonCardContent, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonModal, IonTextarea, IonSpinner, IonCardTitle, IonBadge } from "@ionic/react";
 import { caretDown, caretUp, call, mail, chatboxEllipses, heartCircleOutline, create, alertCircle, heartCircle, star, pencil, folderOpen, albums, chevronUp, chevronDown } from "ionicons/icons";
 import moment from "moment";
 import { Formik, Form } from "formik";
@@ -30,6 +30,8 @@ import ContactInfo from "./profile-parts/ContactInfo";
 import { EditFabButton } from "./profile-parts/withEditableFeatures";
 import UserReviews from "./UserReviews";
 import WordCounter from "./WordCounter";
+import CollapsibleCard from "./CollapsibleCard";
+import AppointmentCard from "./AppointmentCard";
 
 export interface ProfileData {
   _id?: string,
@@ -56,6 +58,8 @@ export interface ProfileData {
 
 const Profile: React.FC<{ user: ProfileData | null }> = ({ user }) => {
   const { currentUser } = useAppContext() as any;
+  const isCurrent = user && currentUser._id === user._id;
+  const isCurrentLawEnforcer = currentUser.accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER;
 
   return (
     <IonPage>
@@ -64,7 +68,7 @@ const Profile: React.FC<{ user: ProfileData | null }> = ({ user }) => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/app/guides" />
           </IonButtons>
-          {(user && (currentUser._id === user._id)) && (
+          {(user && isCurrent && !isCurrentLawEnforcer) && (
             <IonButtons slot="end">
               <IonButton routerLink="/app/incidents" color="danger">
                 <IonIcon slot="icon-only" icon={albums} />
@@ -92,32 +96,12 @@ const Profile: React.FC<{ user: ProfileData | null }> = ({ user }) => {
 export default Profile;
 
 function ContactCard({ user }: { user: ProfileData }) {
-  const [isOpen, setIsOpen] = useState(false);
   const { currentUser } = useAppContext() as any;
 
-  const onToggle = () => setIsOpen(open => !open);
-
   return (
-    <IonCard className="ion-no-margin ion-margin-vertical contact-card">
-      <IonCardHeader className="header">
-        <IonRow onClick={onToggle}>
-          <IonCol className="ion-no-padding">
-            <h6 className="ion-no-margin">Contact</h6>
-          </IonCol>
-          <IonCol className="ion-no-padding ion-text-right">
-            <IonIcon
-              color={isOpen ? "dark" : "primary"}
-              icon={isOpen ? chevronUp : chevronDown}
-            />
-          </IonCol>
-        </IonRow>
-      </IonCardHeader>
-      {isOpen && (
-        <IonCardContent className="body">
-          <ContactInfo user={user} currentUserId={currentUser._id} />
-        </IonCardContent>
-      )}
-    </IonCard>
+    <CollapsibleCard headerText="Contact">
+      <ContactInfo user={user} currentUserId={currentUser._id} />
+    </CollapsibleCard>
   );
 }
 
@@ -150,8 +134,9 @@ function UserDetails({ user }: { user: ProfileData }) {
     }
   };
 
-  const isPatient = user.accountType === USER.ACCOUNT_TYPES.USER;
+  const isUser = user.accountType === USER.ACCOUNT_TYPES.USER;
   const isCurrent = user._id === currentUser._id;
+  const isLawEnforcer = user.accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER;
 
   return (
     <IonCol>
@@ -206,9 +191,15 @@ function UserDetails({ user }: { user: ProfileData }) {
       <ProfilePicture user={user} />
       <IonText className="ion-text-center">
         <FullName user={user} currentUserId={currentUser._id} />
-        {!isPatient && (
+        {!isUser && (
           <>
-            <Speciality user={user} currentUserId={currentUser._id} />
+            {isLawEnforcer ? (
+              <p className="ion-no-margin">
+                <IonBadge color="dark">Police</IonBadge>
+              </p>
+            ) : (
+                <Speciality user={user} currentUserId={currentUser._id} />
+              )}
             <Experience user={user} currentUserId={currentUser._id} />
             <RatingSection user={user} />
           </>
@@ -216,11 +207,15 @@ function UserDetails({ user }: { user: ProfileData }) {
       </IonText>
       <Bio user={user} currentUserId={currentUser._id} />
 
-      {(!isPatient || isCurrent) && (
+      {(!isUser && !isCurrent) && (
+        <AppointmentCard />
+      )}
+
+      {(!isUser || isCurrent) && (
         <ContactCard user={user} />
       )}
 
-      {!isPatient && (
+      {!isUser && (
         <div>
           {!isCurrent && (
             <div className="d-flex ion-justify-content-center">

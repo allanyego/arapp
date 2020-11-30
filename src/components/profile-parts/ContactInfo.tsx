@@ -10,6 +10,7 @@ import { useAppContext } from "../../lib/context-lib";
 import useToastManager from "../../lib/toast-manager";
 import { call, mail } from "ionicons/icons";
 import { REGEX } from "../../http/constants";
+import trimAndLower from "../../lib/trim-and-lower";
 
 const nameSchema = Yup.object({
   email: Yup.string().email("Enter a valid email.").required("Enter your email."),
@@ -23,8 +24,8 @@ const ContactInfo: React.FC<EditableProps> = ({ user, isEditting, setEditting })
 
   const handleSave = async (values: any, { setSubmitting }: any) => {
     try {
-      values.phone = values.phone.trim();
-      values.email = values.email.trim();
+      values.phone = trimAndLower(values.phone);
+      values.email = trimAndLower(values.email);
       await editUser(currentUser._id, currentUser.token, values);
       setCurrentUser(values);
       isEditting && setEditting(false);

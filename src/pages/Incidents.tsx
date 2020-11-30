@@ -1,13 +1,141 @@
 import React, { useState } from "react";
-import { IonText, IonPage, IonContent, IonButton, IonList, IonItem, IonLabel, IonIcon, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonModal, IonTextarea, IonSpinner, useIonViewDidEnter, useIonViewWillLeave } from "@ionic/react";
+import { IonText, IonPage, IonContent, IonButton, IonList, IonItem, IonLabel, IonIcon, IonButtons, IonBackButton, IonHeader, IonToolbar, IonTitle, IonModal, useIonViewDidEnter, useIonViewWillLeave, IonSearchbar, IonGrid, IonRow, IonCol } from "@ionic/react";
 import moment from "moment";
+import { close, play, shareSocial } from "ionicons/icons";
+
 import useToastManager from "../lib/toast-manager";
 import { useAppContext } from "../lib/context-lib";
 import useMounted from "../lib/mount-lib";
 import LoaderFallback from "../components/LoaderFallback";
-import { getUserIncidents, getVideoToken } from "../http/incidents";
-import { INCIDENT_TYPES, SERVER_URL } from "../http/constants";
-import { play } from "ionicons/icons";
+import { getUserIncidents, getVideoToken, shareVideoUrl } from "../http/incidents";
+import { INCIDENT_TYPES } from "../http/constants";
+import createVideoUrl from "../lib/create-video-url";
+import Centered from "../components/Centered";
+import { getPolice } from "../http/users";
+import debounce from "../lib/debounce";
+import "./Incidents.css";
+import trimAndLower from "../lib/trim-and-lower";
+
+const SearchResult: React.FC<{
+  user: any,
+  onTap: (arg: any) => any,
+}> = ({ user, onTap }) => {
+  const handleClick = () => onTap(user);
+
+  return (
+    <IonItem button onClick={handleClick}>
+      <IonLabel>
+        <h2 className="ion-text-capitalize">
+          <strong>{user.fullName}</strong>
+        </h2>
+        <IonText color="medium">
+          <small>@{user.username}</small>
+        </IonText>
+      </IonLabel>
+    </IonItem>
+  );
+};
+
+const ShareButton: React.FC<{
+  incidentId: string,
+}> = ({ incidentId }) => {
+  const [showSearch, setShowSearch] = useState(false);
+  const [isSearching, setSearching] = useState(false);
+  const [isSharing, setSharing] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const { onError, onSuccess } = useToastManager();
+  const { currentUser } = useAppContext() as any;
+
+  const toggleSearch = () => setShowSearch(!showSearch);
+
+  const fetchPolice = async (opts?: any) => {
+    setSearching(true);
+    try {
+      const { data } = await getPolice(currentUser.token, opts);
+      setSearchResults(data);
+      setSearching(false);
+    } catch (error) {
+      setSearching(false);
+      onError(error.message);
+    }
+  };
+
+  const onTap = async (user: any) => {
+    toggleSearch();
+    setSharing(true);
+    try {
+      await shareVideoUrl(incidentId, user._id, currentUser.token);
+      onSuccess("Video url shared.");
+      setSharing(false);
+    } catch (error) {
+      setSharing(false);
+      onError(error.message);
+    }
+  };
+
+  const handleSearch = async (e: any) => {
+    const searchTerm = trimAndLower(e.target.value);
+    if (!searchTerm) {
+      return;
+    }
+
+    setSearching(true);
+
+    try {
+      await fetchPolice({
+        username: searchTerm
+      });
+    } catch (error) {
+      onError(error.message);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  return (
+    <div>
+      <Centered>
+        <IonButton
+          onClick={toggleSearch}
+          disabled={isSharing}
+          color="dark"
+        >
+          {isSharing ? "Sharing..." : "Share to a cop"} <IonIcon slot="end" icon={shareSocial} />
+        </IonButton>
+      </Centered>
+      {showSearch && (
+        <div className="share-results-container">
+          <IonGrid>
+            <IonRow>
+              <IonCol className="ion-no-padding">
+                <IonSearchbar
+                  onIonChange={debounce(handleSearch, 1200)}
+                  placeholder="enter username"
+                />
+              </IonCol>
+              <IonCol className="ion-no-padding d-flex ion-align-items-center" size="2">
+                <IonButton fill="clear" color="danger" onClick={toggleSearch} disabled={isSearching}>
+                  <IonIcon slot="icon-only" icon={close} />
+                </IonButton>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+          <hr />
+
+          {isSearching ? (
+            <LoaderFallback fullHeight />
+          ) : (
+              <IonList lines="full">
+                {searchResults.map((user: any) => (
+                  <SearchResult key={user._id} {...{ onTap, user }} />
+                ))}
+              </IonList>
+            )}
+        </div>
+      )}
+    </div>
+  )
+};
 
 const IncidentItem: React.FC<{
   incident: any,
@@ -73,10 +201,6 @@ interface IncidentModalProps {
   onClose: () => any
 }
 
-const createUrl = (filename: string, token: string) => {
-  return `${SERVER_URL}/incidents/video/${filename}?token=${token}`;
-};
-
 const IncidentModal: React.FC<IncidentModalProps> = ({
   isOpen,
   incident,
@@ -93,7 +217,7 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
       }
 
       const { data } = await getVideoToken(currentUser.token);
-      isOpen && setUrl(createUrl(incident.videoEvidence, data));
+      isOpen && setUrl(createVideoUrl(incident.videoEvidence, data));
     } catch (error) {
       onError(error.message);
     }
@@ -149,6 +273,9 @@ const IncidentModal: React.FC<IncidentModalProps> = ({
               <IncidentContact incident={incident} />
             )}
             <small>Date: {moment(createdAt).format("MMM Do YY")}</small>
+            {isVideo && (
+              <ShareButton incidentId={incident._id} />
+            )}
           </div>
         </div>
       </IonContent>

@@ -1,7 +1,16 @@
-export const ROOT_URL = "https://safe360-ke.herokuapp.com";
-// process.env.NODE_ENV === "production"
-//   ? "https://safe360-ke.herokuapp.com"
-//   : "http://localhost:8080";
+export const ROOT_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://safe360-ke.herokuapp.com"
+    : "http://localhost:8080";
+
+export const APPOINTMENT = {
+  STATUSES: {
+    UNANSWERED: "UNANSWERED",
+    ACCEPTED: "ACCEPTED",
+    REJECTED: "REJECTED",
+    CLOSED: "CLOSED",
+  },
+};
 
 export const SERVER_URL = `${ROOT_URL}/api/v1`;
 
@@ -11,6 +20,7 @@ export const USER = {
     COUNSELLOR: "COUNSELLOR",
     HEALTH_FACILITY: "HEALTH_FACILITY",
     ADMIN: "ADMIN",
+    LAW_ENFORCER: "LAW_ENFORCER",
   },
 };
 

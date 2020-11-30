@@ -5,9 +5,12 @@
   "dependencies": {
     "@capacitor/android": "^2.4.2",
     "@capacitor/core": "^2.4.2",
+    "@ionic-native/call-number": "^5.30.0",
     "@ionic-native/contacts": "^5.28.0",
+    "@ionic-native/core": "^5.30.0",
     "@ionic/react": "^5.0.7",
     "@ionic/react-router": "^5.0.7",
+    "call-number": "^1.0.1",
     "cordova-plugin-contacts": "^3.0.1",
     "formik": "^2.1.7",
     "ionicons": "^5.0.0",

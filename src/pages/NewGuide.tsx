@@ -10,6 +10,7 @@ import useToastManager from "../lib/toast-manager";
 import FormFieldFeedback from "../components/FormFieldFeedback";
 import { add, close } from "ionicons/icons";
 import WordCounter from "../components/WordCounter";
+import { USER } from "../http/constants";
 
 const newGuideSchema = Yup.object({
   title: Yup.string().max(75, "Too long.").required("Enter a title for the guide."),
@@ -38,7 +39,12 @@ const NewGuide: React.FC = () => {
     }
   };
 
-  useIonViewDidEnter(() => !currentUser.active && history.replace("/app/guides"));
+  useIonViewDidEnter(() => {
+    const { active, accountType } = currentUser;
+    if (!active || accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER) {
+      history.replace("/app/guides");
+    }
+  });
 
   return (
     <IonPage>

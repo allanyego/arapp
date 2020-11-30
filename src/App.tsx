@@ -43,6 +43,8 @@ const App: React.FC = () => {
   const [currentUser, setUser] = useState<any>(null);
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [activeAppointment, setActiveAppointment] = useState<any>(null);
+  const [alerts, setAlerts] = useState([]);
   const [authenticating, setAuthenticating] = useState(true);
   const { isMounted, setMounted } = useMounted();
 
@@ -85,6 +87,10 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <AppContext.Provider value={{
+        activeAppointment,
+        setActiveAppointment,
+        alerts,
+        setAlerts,
         currentUser,
         setCurrentUser: _setCurrentUser,
         notifications,
