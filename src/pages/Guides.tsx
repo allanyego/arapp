@@ -67,7 +67,7 @@ function GuideCard({ guide }: any) {
   const { url } = useRouteMatch();
 
   return (
-    <IonCard routerLink={`${url}/${guide._id}`}>
+    <IonCard routerLink={`${url}/guide/${guide._id}`}>
       <IonCardHeader
         className="ion-no-padding ion-padding-horizontal ion-padding-top"
       >

@@ -55,7 +55,7 @@ const signupInitial: ProfileData & Extras = {
   birthday: "",
   password: "",
   phone: "",
-  countryCode: "",
+  countryCode: "254",
   confirmPassword: "",
   accountType: "",
 };
@@ -69,11 +69,12 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      let { countryCode, phone, confirmPassword, username, email, name, ...rest } = values;
+      let { countryCode, phone, confirmPassword, username, email, fullName, ...rest } = values;
       rest = {
+        ...rest,
         phone: `+${countryCode + phone}`,
         username: trimAndLower(username),
-        name: trimAndLower(name),
+        fullName: trimAndLower(fullName),
         email: trimAndLower(email),
       };
 
@@ -186,7 +187,11 @@ const SignUp: React.FC = () => {
                     <IonCol>
                       <IonItem className={touched.countryCode && errors.countryCode ? "has-error" : ""}>
                         <IonLabel position="floating">Country Code</IonLabel>
-                        <IonSelect name="countryCode" onIonChange={handleChange} onIonBlur={handleBlur}>
+                        <IonSelect
+                          name="countryCode"
+                          onIonChange={handleChange}
+                          onIonBlur={handleBlur}
+                        >
                           {countries.map(
                             (c: any, i) => (
                               <IonSelectOption

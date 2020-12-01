@@ -9,22 +9,22 @@ import { useAppContext } from "../lib/context-lib";
 import SuspenseFallback from "../components/SuspenseFallback";
 import useMounted from "../lib/mount-lib";
 import { ROOT_URL, USER } from "../http/constants";
-import Incidents from "./Incidents";
 import useAlerts from "../lib/alerts";
 import useToastManager from "../lib/toast-manager";
 
 const Alerts = React.lazy(() => import("./Alerts"));
-const Guides = React.lazy(() => import("./routes/Guides"));
-const Chat = React.lazy(() => import("./routes/Chat"));
-const Profile = React.lazy(() => import("./routes/Profile"));
-const Listing = React.lazy(() => import("./Listing"));
-const Sos = React.lazy(() => import("./Sos"));
 const Appointments = React.lazy(() => import("./routes/Appointments"));
+const Chat = React.lazy(() => import("./routes/Chat"));
+const Guides = React.lazy(() => import("./routes/Guides"));
+const Incidents = React.lazy(() => import("./Incidents"));
+const Listing = React.lazy(() => import("./Listing"));
 const PoliceListing = React.lazy(() => import("./PoliceListing"));
+const Profile = React.lazy(() => import("./routes/Profile"));
+const Sos = React.lazy(() => import("./Sos"));
 const VideoShares = React.lazy(() => import("./VideoShares"));
 
 const Main: React.FC = () => {
-  const { url, path } = useRouteMatch();
+  const { path } = useRouteMatch();
   const { currentUser, socket, setSocket } = useAppContext() as any;
   const { isMounted, setMounted } = useMounted();
   const { onRespond, onAlert } = useAlerts();
@@ -81,24 +81,24 @@ const Main: React.FC = () => {
             <Route path={`${path}/chat`} component={Chat} />
             <Route path={`${path}/guides`} component={Guides} />
             <Route path={`${path}/profile`} component={Profile} />
-            <Route render={() => <Redirect to={`${path}/guides`} />} exact />
+            <Route render={() => <Redirect to={`${path}/guides`} />} />
           </IonRouterOutlet>
 
           <IonTabBar slot="bottom">
-            <IonTabButton tab="info" href={`${url}/guides`}>
+            <IonTabButton tab="guides" href="/app/guides">
               <IonIcon icon={informationCircle} />
               <IonLabel>Guides</IonLabel>
               {/* <IonBadge>6</IonBadge> */}
             </IonTabButton>
 
             {!isLawEnforcer && (
-              <IonTabButton tab="sos" href={`${url}/sos`}>
+              <IonTabButton tab="sos" href="/app/sos">
                 <IonIcon icon={megaphone} />
                 <IonLabel>Send SOS</IonLabel>
               </IonTabButton>
             )}
 
-            <IonTabButton tab="chat" href={`${url}/chat`}>
+            <IonTabButton tab="chat" href="/app/chat">
               <IonIcon icon={chatbox} />
               <IonLabel>Chat</IonLabel>
             </IonTabButton>

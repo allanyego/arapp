@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory, useRouteMatch, Route } from "react-router";
+import { useParams, useHistory, Route } from "react-router";
 import { useIonViewWillLeave, IonRouterOutlet, useIonViewDidEnter, IonPage } from "@ionic/react";
 
 import { getById } from "../../http/users";
@@ -25,7 +25,11 @@ const MyProfile: React.FC = () => {
     setMounted(false);
   });
 
-  return <AProfile user={user} />
+  return (
+    <IonPage>
+      <AProfile user={user} />
+    </IonPage>
+  );
 }
 
 const UserProfile: React.FC = () => {
@@ -36,6 +40,7 @@ const UserProfile: React.FC = () => {
   const { isMounted, setMounted } = useMounted();
   const { currentUser } = useAppContext() as any;
 
+  console.log("Hey user profile", userId);
   const fetchUser = async () => {
     try {
       const { data } = await getById(userId, currentUser.token);
@@ -56,16 +61,19 @@ const UserProfile: React.FC = () => {
     setMounted(false);
   });
 
-  return <AProfile user={user} />
+  return (
+    <IonPage>
+      <AProfile user={user} />
+    </IonPage>
+  );
 }
 
 const Profile: React.FC = () => {
-  const { path } = useRouteMatch();
   return (
     <IonPage>
       <IonRouterOutlet>
-        <Route path={`${path}`} component={MyProfile} exact />
-        <Route path={`${path}/:userId`} component={UserProfile} exact />
+        <Route path="/app/profile" component={MyProfile} exact />
+        <Route path="/app/profile/:userId" component={UserProfile} exact />
       </IonRouterOutlet>
     </IonPage>
   );

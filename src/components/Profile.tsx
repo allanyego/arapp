@@ -62,7 +62,7 @@ const Profile: React.FC<{ user: ProfileData | null }> = ({ user }) => {
   const isCurrentLawEnforcer = currentUser.accountType === USER.ACCOUNT_TYPES.LAW_ENFORCER;
 
   return (
-    <IonPage>
+    <>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
@@ -89,7 +89,7 @@ const Profile: React.FC<{ user: ProfileData | null }> = ({ user }) => {
             </IonGrid>
           )}
       </IonContent>
-    </IonPage>
+    </>
   );
 }
 
