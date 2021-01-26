@@ -32,6 +32,13 @@ export async function shareVideoUrl(incident, shareTo, token) {
   });
 }
 
+export async function deleteIncidentVideo(incident, token) {
+  return await request(`${BASE_URL}/video/${incident}`, {
+    method: "DELETE",
+    headers: constructAuthHeader(token),
+  });
+}
+
 export async function getVideoShares(userId, token) {
   return await request(`${BASE_URL}/video/shares/${userId}`, {
     headers: constructAuthHeader(token),
